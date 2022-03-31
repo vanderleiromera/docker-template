@@ -1,0 +1,6 @@
+web:
+  - web_responsive
+server-tools:
+  - "*"
+l10n-brazil:
+  - "*"

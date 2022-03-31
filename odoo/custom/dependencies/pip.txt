@@ -1,3 +1,25 @@
-git+https://github.com/OCA/openupgradelib.git@master
+#git+https://github.com/OCA/openupgradelib.git@master
 unicodecsv
 unidecode
+
+# Localizacao Brasil
+
+erpbrasil.assinatura-nopyopenssl
+erpbrasil.base
+erpbrasil.edoc
+erpbrasil.transmissao
+nfelib
+num2words
+odoo_test_helper
+pycep_correios
+workalendar
+
+xmldiff==2.4
+lxml==4.6.5
+-e git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
+vcrpy
+odoo-test-helper
+
+# OCA Modules
+pysftp
+python-barcode == 0.12.0
