@@ -42,3 +42,12 @@
   target: origin $ODOO_VERSION
   merges:
     - origin $ODOO_VERSION
+
+./account-reconcile:
+  defaults:
+    depth: $DEPTH_DEFAULT
+  remotes:
+    origin: https://github.com/OCA/account-reconcile.git
+  target: origin $ODOO_VERSION
+  merges:
+    - origin $ODOO_VERSION
