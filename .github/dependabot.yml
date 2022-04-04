@@ -5,15 +5,12 @@
 
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: github-actions
+    directory: "/"
     schedule:
-      interval: "daily"
-      
-  # Enable version updates for Docker
-  - package-ecosystem: "docker"
-    # Look for a `Dockerfile` in the `root` directory
-    directory: "/odoo/custom/dependencies"
-    # Check for updates once a week
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: daily
