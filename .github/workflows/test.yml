@@ -4,7 +4,6 @@ on:
   pull_request:
   push:
     branches:
-      - devel
       - stable
   workflow_dispatch:
     inputs:
