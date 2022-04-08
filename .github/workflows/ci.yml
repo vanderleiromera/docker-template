@@ -43,6 +43,7 @@ jobs:
         with:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
 
+      # insert pull test
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
