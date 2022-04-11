@@ -28,7 +28,7 @@ env:
   TEST_TAG: vanderleiromera/doodba14_odoo:test
   PGPASSWORD: example-db-password
   POSTGRES_PASSWORD: example-db-password
-  ADMIN_PASSWORD: example-admin-password
+ # ADMIN_PASSWORD: example-admin-password
   POSTGRES_USER: odoo
   POSTGRES_DB: prod
 
