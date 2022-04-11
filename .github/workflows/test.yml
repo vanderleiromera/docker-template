@@ -89,13 +89,6 @@ jobs:
       - run: git config --global user.email CI@GITHUB
       # Run all tests, which includes linters
       # Non concurrent first (in parallel)
-      - run: poetry run invoke test
-        env:
-          TEST_TAG: vanderleiromera/doodba14_odoo:test
-      # Concurrent tests (isolated)
-      - run: poetry run invoke test --sequential
-        env:
-          TEST_TAG: vanderleiromera/doodba14_odoo:test
           
       - name: Build and export to Docker
         uses: docker/build-push-action@v2
