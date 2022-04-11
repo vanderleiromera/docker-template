@@ -5,10 +5,23 @@ on:
   push:
     branches:
       - test
+      
+env:
+  GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
+  LANG: "en_US.utf-8"
+  LC_ALL: "en_US.utf-8"
+  PIP_CACHE_DIR: ${{ github.workspace }}/.cache.~/pip
+  PIPX_HOME: ${{ github.workspace }}/.cache.~/pipx
+  POETRY_CACHE_DIR: ${{ github.workspace }}/.cache.~/pypoetry
+  POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  PRE_COMMIT_HOME: ${{ github.workspace }}/.cache.~/pre-commit
+  PYTEST_ADDOPTS: ${{ github.event.inputs.pytest_addopts }}
+  PYTHONIOENCODING: "UTF-8"
+  TEST_TAG: vanderleiromera/doodba14_odoo:test
 
 jobs:
   database:
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
       services:
         db:
           image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
@@ -18,10 +31,10 @@ jobs:
             POSTGRES_DB: prod
           ports:
             - 5432:5432
-      steps:
-        - uses: actions/checkout@v3
-        
-  odoo:
+    steps:
+      - uses: actions/checkout@v3
+      
+  test:
     runs-on: ubuntu-latest
     needs: database
     
@@ -91,5 +104,4 @@ jobs:
           platforms: linux/amd64
           tags: vanderleiromera/doodba14_odoo:${{ steps.tagging.outputs.new_version }}
           build-args: ODOO_VERSION=14.0
-      
   
