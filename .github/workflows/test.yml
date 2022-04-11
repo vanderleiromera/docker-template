@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - devel
+      - test
   workflow_dispatch:
     inputs:
       pytest_addopts:
@@ -14,7 +15,7 @@ on:
         required: false
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
   LANG: "en_US.utf-8"
   LC_ALL: "en_US.utf-8"
   PIP_CACHE_DIR: ${{ github.workspace }}/.cache.~/pip
