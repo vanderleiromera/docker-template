@@ -95,6 +95,7 @@ jobs:
         with:
           context: ./odoo
           load: true
+          build-args: ODOO_VERSION=14.0
           tags: ${{ env.TEST_TAG }}
           
       - name: Test
