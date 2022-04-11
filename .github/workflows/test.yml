@@ -40,9 +40,9 @@ jobs:
       db:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
         env:
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: example-db-password
+          POSTGRES_DB: prod
         ports:
           - 5432:5432
     
