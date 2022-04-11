@@ -26,17 +26,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  
-    
-    services:
-      db:
-        image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
-        env:
-          POSTGRES_USER: odoo
-          POSTGRES_PASSWORD: example-db-password
-          POSTGRES_DB: prod
-        ports:
-          - 5432:5432
+    runs-on: ubuntu-latest
     
     steps:
     # Shared steps
@@ -104,4 +94,14 @@ jobs:
           platforms: linux/amd64
           tags: vanderleiromera/doodba14_odoo:${{ steps.tagging.outputs.new_version }}
           build-args: ODOO_VERSION=14.0
+          
+    services:
+      db:
+        image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: example-db-password
+          POSTGRES_DB: prod
+        ports:
+          - 5432:5432
           
