@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       db:
-      image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
+        image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
         env:
           POSTGRES_USER: odoo
           POSTGRES_PASSWORD: example-db-password
