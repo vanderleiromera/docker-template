@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest  
     
     services:
-      postgres:
+      db:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
         env:
           POSTGRES_USER: odoo
