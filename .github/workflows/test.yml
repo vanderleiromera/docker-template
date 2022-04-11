@@ -47,7 +47,7 @@ jobs:
         - 5432:5432
     
     steps:
-      # Shared steps
+    # Shared steps
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0Fetch all history for all tags and branches
@@ -71,9 +71,7 @@ jobs:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
           
       - name: Install python
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
+      
       - name: Generate cache key CACHE
         run:
           echo "CACHE=${{ secrets.CACHE_DATE }} ${{ runner.os }} $(python -VV |
@@ -87,7 +85,7 @@ jobs:
             .cache.~
             .venv
             ~/.local/bin
-          key: venv ${{ env.CACHE }}
+            key: venv ${{ env.CACHE }}
       - run: pip install poetry
       - name: Patch $PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
