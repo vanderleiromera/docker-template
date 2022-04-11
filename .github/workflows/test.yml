@@ -25,6 +25,9 @@ env:
   PYTEST_ADDOPTS: ${{ github.event.inputs.pytest_addopts }}
   PYTHONIOENCODING: "UTF-8"
   TEST_TAG: vanderleiromera/doodba14_odoo:test
+  PGUSER: odoo
+  PGPASSWORD: example-db-password
+  PGDATABASE: prod
 
 jobs:
   test:
@@ -110,6 +113,7 @@ jobs:
           
       - name: Test
         run: |
+          docker run --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
           docker run --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
