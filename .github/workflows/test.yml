@@ -25,18 +25,23 @@ env:
   POSTGRES_DB: prod
 
 jobs:
+  database:
+      runs-on: ubuntu-latest
+      services:
+        db:
+          image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
+          env:
+            POSTGRES_USER: odoo
+            POSTGRES_PASSWORD: example-db-password
+            POSTGRES_DB: prod
+          ports:
+            - 5432:5432
+      steps:
+        - uses: actions/checkout@v3
+      
   test:
     runs-on: ubuntu-latest
-    
-    services:
-      db:
-        image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
-        env:
-          POSTGRES_USER: odoo
-          POSTGRES_PASSWORD: example-db-password
-          POSTGRES_DB: prod
-        ports:
-          - 5432:5432
+    needs: database
     
     steps:
     # Shared steps
