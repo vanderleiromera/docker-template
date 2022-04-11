@@ -5,15 +5,7 @@ on:
   push:
     branches:
       - test
-  workflow_dispatch:
-    inputs:
-      pytest_addopts:
-        description:
-          Extra options for pytest; use -vv for full details; see
-          https://docs.pytest.org/en/latest/example/simple.html#how-to-change-command-line-options-defaults
-        required: false
-
- 
+      
 env:
   GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
   LANG: "en_US.utf-8"
@@ -28,7 +20,7 @@ env:
   TEST_TAG: vanderleiromera/doodba14_odoo:test
   PGPASSWORD: example-db-password
   POSTGRES_PASSWORD: example-db-password
- # ADMIN_PASSWORD: example-admin-password
+  ADMIN_PASSWORD: example-admin-password
   POSTGRES_USER: odoo
   POSTGRES_DB: prod
 
