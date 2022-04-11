@@ -13,6 +13,7 @@ on:
           https://docs.pytest.org/en/latest/example/simple.html#how-to-change-command-line-options-defaults
         required: false
 
+ 
 env:
   GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
   LANG: "en_US.utf-8"
@@ -28,10 +29,22 @@ env:
   PGPASSWORD: example-db-password
   POSTGRES_PASSWORD: example-db-password
   ADMIN_PASSWORD: example-admin-password
+  POSTGRES_USER: odoo
+  POSTGRES_DB: prod
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  
+    
+  services:
+    db:
+      image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
+      env:
+        POSTGRES_USER: ${{ env.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        POSTGRES_DB: ${{ env.POSTGRES_DB }}
+      ports:
+        - 5432:5432
     
     steps:
       # Shared steps
@@ -101,3 +114,4 @@ jobs:
           platforms: linux/amd64
           tags: vanderleiromera/doodba14_odoo:${{ steps.tagging.outputs.new_version }}
           build-args: ODOO_VERSION=14.0
+          
