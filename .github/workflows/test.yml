@@ -1,20 +1,46 @@
 name: test
+
 on:
+  pull_request:
   push:
     branches:
-      - devel
       - test
-      
+  workflow_dispatch:
+    inputs:
+      pytest_addopts:
+        description:
+          Extra options for pytest; use -vv for full details; see
+          https://docs.pytest.org/en/latest/example/simple.html#how-to-change-command-line-options-defaults
+        required: false
+
 env:
+  GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
+  LANG: "en_US.utf-8"
+  LC_ALL: "en_US.utf-8"
+  PIP_CACHE_DIR: ${{ github.workspace }}/.cache.~/pip
+  PIPX_HOME: ${{ github.workspace }}/.cache.~/pipx
+  POETRY_CACHE_DIR: ${{ github.workspace }}/.cache.~/pypoetry
+  POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  PRE_COMMIT_HOME: ${{ github.workspace }}/.cache.~/pre-commit
+  PYTEST_ADDOPTS: ${{ github.event.inputs.pytest_addopts }}
+  PYTHONIOENCODING: "UTF-8"
   TEST_TAG: vanderleiromera/doodba14_odoo:test
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python-version:
+          - 3.7
+        odoo-version:
+          - 14.0
     steps:
+      # Shared steps
       - uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0Fetch all history for all tags and branches
+          
       - name: QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -27,13 +53,30 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           
-      - name: Build and export to Docker
-        uses: docker/build-push-action@v2
+      - name: Bump version and push tag
+        id: tagging
+        uses: mathieudutour/github-tag-action@v6.0
         with:
-          context: .
-          load: true
-          tags: ${{ env.TEST_TAG }}
-                
+          github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
+          
+      - name: Install python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Generate cache key CACHE
+        run:
+          echo "CACHE=${{ secrets.CACHE_DATE }} ${{ runner.os }} $(python -VV |
+          sha256sum | cut -d' ' -f1) ${{ hashFiles('pyproject.toml') }} ${{
+          hashFiles('poetry.lock') }} ${{ hashFiles('.pre-commit-config.yaml') }}" >>
+          $GITHUB_ENV
+          
+      - uses: actions/cache@v3
+        with:
+          path: |
+            .cache.~
+            .venv
+            ~/.local/bin
+          key: venv ${{ env.CACHE }}
       - run: pip install poetry
       - name: Patch $PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
@@ -46,49 +89,31 @@ jobs:
       - run: git config --global user.email CI@GITHUB
       # Run all tests, which includes linters
       # Non concurrent first (in parallel)
-      #- run: poetry run invoke test
+      - run: poetry run invoke test
+        env:
+          TEST_TAG: vanderleiromera/doodba14_odoo:test
+      # Concurrent tests (isolated)
+      - run: poetry run invoke test --sequential
+        env:
+          TEST_TAG: vanderleiromera/doodba14_odoo:test
+          
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./odoo
+          load: true
+          tags: ${{ env.TEST_TAG }}
           
       - name: Test
         run: |
-          poetry run invoke test ${{ env.TEST_TAG }}
-
-      - name: Bump version and push tag
-        id: tagging
-        uses: mathieudutour/github-tag-action@v6.0
-        with:
-          github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
-
+          docker run --rm ${{ env.TEST_TAG }}
+      
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          push: false
           context: ./odoo
           file: ./odoo/Dockerfile
           platforms: linux/amd64
           tags: vanderleiromera/doodba14_odoo:${{ steps.tagging.outputs.new_version }}
           build-args: ODOO_VERSION=14.0
-          
-          
-          
-          
-          
- #     - run: pip install poetry
-  #    - name: Patch $PATH
-   #     run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-    #  - run: poetry install
-      # Precreate shared networks to avoid race conditions
-     # - run: docker network create inverseproxy_shared
-      #- run: docker network create globalwhitelist_shared
-      # Let tests issue git commits
-      #- run: git config --global user.name CI
-      #- run: git config --global user.email CI@GITHUB
-      # Run all tests, which includes linters
-      # Non concurrent first (in parallel)
-      #- run: poetry run invoke test
-       # env:
-        #  SELECTED_ODOO_VERSIONS: ${{ matrix.odoo-version }}
-      # Concurrent tests (isolated)
-     # - run: poetry run invoke test --sequential
-      #  env:
-       #   SELECTED_ODOO_VERSIONS: ${{ matrix.odoo-version }}
