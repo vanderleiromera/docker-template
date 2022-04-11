@@ -9,7 +9,7 @@ env:
   TEST_TAG: vanderleiromera/doodba14_odoo:test
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,10 +33,24 @@ jobs:
           context: .
           load: true
           tags: ${{ env.TEST_TAG }}
+                
+      - run: pip install poetry
+      - name: Patch $PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - run: poetry install
+      # Precreate shared networks to avoid race conditions
+      - run: docker network create inverseproxy_shared
+      - run: docker network create globalwhitelist_shared
+      # Let tests issue git commits
+      - run: git config --global user.name CI
+      - run: git config --global user.email CI@GITHUB
+      # Run all tests, which includes linters
+      # Non concurrent first (in parallel)
+      #- run: poetry run invoke test
           
       - name: Test
         run: |
-          docker run --rm ${{ env.TEST_TAG }}
+          poetry run invoke test ${{ env.TEST_TAG }}
 
       - name: Bump version and push tag
         id: tagging
