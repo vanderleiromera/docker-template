@@ -28,7 +28,7 @@ env:
   PGUSER: odoo
   PGPASSWORD: example-db-password
   PGDATABASE: prod
-  HOST: db
+  DBHOST: localhost
 
 jobs:
   test:
@@ -40,8 +40,9 @@ jobs:
           POSTGRES_USER: odoo
           POSTGRES_PASSWORD: example-db-password
           POSTGRES_DB: prod
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5432:5432
+          - 5432
           
     strategy:
       matrix:
