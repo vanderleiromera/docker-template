@@ -26,9 +26,10 @@ env:
   PYTHONIOENCODING: "UTF-8"
   TEST_TAG: vanderleiromera/doodba14_odoo:test
   PGUSER: odoo
-  PGPASSWORD: example-db-password
+  PGPASSWORD: odoopassword
   PGDATABASE: prod
-  DBHOST: localhost
+  PGHOST: db
+  PGPORT: 5432
 
 jobs:
   test:
@@ -38,18 +39,18 @@ jobs:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
         env:
           POSTGRES_USER: odoo
-          POSTGRES_PASSWORD: example-db-password
+          POSTGRES_PASSWORD: odoopassword
           POSTGRES_DB: prod
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432
           
-    strategy:
-      matrix:
-        python-version:
-          - 3.7
-        odoo-version:
-          - 14.0
+#    strategy:
+#      matrix:
+#        python-version:
+#          - 3.7
+#        odoo-version:
+#          - 14.0
     steps:
       # Shared steps
       - uses: actions/checkout@v3
@@ -74,16 +75,16 @@ jobs:
         with:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
           
-      - name: Install python
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Generate cache key CACHE
-        run:
-          echo "CACHE=${{ secrets.CACHE_DATE }} ${{ runner.os }} $(python -VV |
-          sha256sum | cut -d' ' -f1) ${{ hashFiles('pyproject.toml') }} ${{
-          hashFiles('poetry.lock') }} ${{ hashFiles('.pre-commit-config.yaml') }}" >>
-          $GITHUB_ENV
+#      - name: Install python
+#        uses: actions/setup-python@v3
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - name: Generate cache key CACHE
+#        run:
+#          echo "CACHE=${{ secrets.CACHE_DATE }} ${{ runner.os }} $(python -VV |
+#          sha256sum | cut -d' ' -f1) ${{ hashFiles('pyproject.toml') }} ${{
+#          hashFiles('poetry.lock') }} ${{ hashFiles('.pre-commit-config.yaml') }}" >>
+#          $GITHUB_ENV
           
       - uses: actions/cache@v3
         with:
@@ -92,10 +93,10 @@ jobs:
             .venv
             ~/.local/bin
           key: venv ${{ env.CACHE }}
-      - run: pip install poetry
+ #     - run: pip install poetry
       - name: Patch $PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - run: poetry install
+ #     - run: poetry install
       # Precreate shared networks to avoid race conditions
       - run: docker network create inverseproxy_shared
       - run: docker network create globalwhitelist_shared
