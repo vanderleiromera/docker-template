@@ -34,13 +34,13 @@ env:
   POSTGRES_HOST_AUTH_METHOD: trust
 
 jobs:
-  rede:
-    runs-on: ubuntu-latest
-    steps:
+#  rede:
+#    runs-on: ubuntu-latest
+#    steps:
 #      - uses: actions/checkout@v2
-      - run: docker network create odoo-lan 
+#      - run: docker network create odoo-lan 
   data:
-    needs: rede
+#    needs: rede
     runs-on: ubuntu-latest          
     services:
       db:
@@ -55,7 +55,6 @@ jobs:
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
-          --link db
                 
       
           
@@ -131,7 +130,7 @@ jobs:
           
       - name: Test
         run: |
-          docker run --link=db --rm ${{ env.TEST_TAG }}
+          docker run --network ${{ job.container.network }} --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
         id: docker_build
