@@ -28,6 +28,7 @@ env:
   PGUSER: odoo
   PGPASSWORD: example-db-password
   PGDATABASE: prod
+  HOST: db
 
 jobs:
   test:
