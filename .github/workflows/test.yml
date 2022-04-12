@@ -34,6 +34,9 @@ env:
 jobs:
   data:
     runs-on: ubuntu-latest
+    steps:
+      # Shared steps
+      - uses: actions/checkout@v3
     services:
       db:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
