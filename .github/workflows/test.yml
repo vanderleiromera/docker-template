@@ -43,7 +43,7 @@ jobs:
           POSTGRES_DB: prod
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5432
+          - 5432:5432
           
 #    strategy:
 #      matrix:
@@ -116,8 +116,8 @@ jobs:
           
       - name: Test
         run: |
-          docker run --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
-          docker run --rm ${{ env.TEST_TAG }}
+          docker-compose -f test.yaml run --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
+          docker-compose -f test.yaml run --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
         id: docker_build
