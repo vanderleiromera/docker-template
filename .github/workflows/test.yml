@@ -28,7 +28,7 @@ env:
   PGUSER: odoo
   PGPASSWORD: odoopassword
   PGDATABASE: prod
-  PGHOST: localhost
+  PGHOST: db
   PGPORT: 5432
   POSTGRES_HOST_AUTH_METHOD: trust
 
@@ -109,7 +109,7 @@ jobs:
       - run: git config --global user.email CI@GITHUB
       # Run all tests, which includes linters
       # Non concurrent first (in parallel)
-          
+      #  docker run --rm ${{ env.TEST_TAG }} odoo --stop-after-init -i base  
       - name: Build and export to Docker
         uses: docker/build-push-action@v2
         with:
@@ -120,8 +120,7 @@ jobs:
           
       - name: Test
         run: |
-          docker run --db_host=db --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
-          docker run --db_host=db --rm ${{ env.TEST_TAG }}
+          docker run --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
         id: docker_build
