@@ -32,7 +32,7 @@ env:
   PGPORT: 5432
 
 jobs:
-  test:
+  data:
     runs-on: ubuntu-latest
     services:
       db:
@@ -44,6 +44,9 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
+        options:
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5
           
 #    strategy:
 #      matrix:
@@ -51,6 +54,9 @@ jobs:
 #          - 3.7
 #        odoo-version:
 #          - 14.0
+
+  test:
+    runs-on: ubuntu-latest
     steps:
       # Shared steps
       - uses: actions/checkout@v3
@@ -98,8 +104,8 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
  #     - run: poetry install
       # Precreate shared networks to avoid race conditions
-      - run: docker network create inverseproxy_shared
-      - run: docker network create globalwhitelist_shared
+ #     - run: docker network create inverseproxy_shared
+ #     - run: docker network create globalwhitelist_shared
       # Let tests issue git commits
       - run: git config --global user.name CI
       - run: git config --global user.email CI@GITHUB
@@ -116,8 +122,8 @@ jobs:
           
       - name: Test
         run: |
-          docker-compose -f test.yaml run --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
-          docker-compose -f test.yaml run --rm ${{ env.TEST_TAG }}
+          docker run --name db --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
+          docker run --name db --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
         id: docker_build
