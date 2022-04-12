@@ -5,13 +5,7 @@ on:
   push:
     branches:
       - test
-  workflow_dispatch:
-    inputs:
-      pytest_addopts:
-        description:
-          Extra options for pytest; use -vv for full details; see
-          https://docs.pytest.org/en/latest/example/simple.html#how-to-change-command-line-options-defaults
-        required: false
+      - devel
 
 env:
   GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
@@ -25,22 +19,15 @@ env:
   PYTEST_ADDOPTS: ${{ github.event.inputs.pytest_addopts }}
   PYTHONIOENCODING: "UTF-8"
   TEST_TAG: vanderleiromera/doodba14_odoo:test
-  PGUSER: odoo
-  PGPASSWORD: odoopassword
-  PGDATABASE: prod
-#  NETWORKS: odoo-lan
-  PGHOST: db
-  PGPORT: 5432
-  POSTGRES_HOST_AUTH_METHOD: trust
+  #PGUSER: odoo
+  #PGPASSWORD: odoopassword
+  #PGDATABASE: prod
+  #PGHOST: db
+  #PGPORT: 5432
+  #POSTGRES_HOST_AUTH_METHOD: trust
 
 jobs:
-#  rede:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - run: docker network create odoo-lan 
   data:
-#    needs: rede
     runs-on: ubuntu-latest          
     services:
       db:
@@ -55,16 +42,7 @@ jobs:
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
-                
-      
-          
-          
-#    strategy:
-#      matrix:
-#        python-version:
-#          - 3.7
-#        odoo-version:
-#          - 14.0
+              
     steps:
       # Shared steps
       - uses: actions/checkout@v3
@@ -89,17 +67,6 @@ jobs:
         with:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
           
-#      - name: Install python
-#        uses: actions/setup-python@v3
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#      - name: Generate cache key CACHE
-#        run:
-#          echo "CACHE=${{ secrets.CACHE_DATE }} ${{ runner.os }} $(python -VV |
-#          sha256sum | cut -d' ' -f1) ${{ hashFiles('pyproject.toml') }} ${{
-#          hashFiles('poetry.lock') }} ${{ hashFiles('.pre-commit-config.yaml') }}" >>
-#          $GITHUB_ENV
-          
       - uses: actions/cache@v3
         with:
           path: |
@@ -107,19 +74,14 @@ jobs:
             .venv
             ~/.local/bin
           key: venv ${{ env.CACHE }}
- #     - run: pip install poetry
       - name: Patch $PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
- #     - run: poetry install
-      # Precreate shared networks to avoid race conditions
- #     - run: docker network create inverseproxy_shared
- #     - run: docker network create globalwhitelist_shared
       # Let tests issue git commits
       - run: git config --global user.name CI
       - run: git config --global user.email CI@GITHUB
       # Run all tests, which includes linters
       # Non concurrent first (in parallel)
-      #  docker run --rm ${{ env.TEST_TAG }} odoo --stop-after-init -i base  
+      
       - name: Build and export to Docker
         uses: docker/build-push-action@v2
         with:
@@ -130,7 +92,7 @@ jobs:
           
       - name: Test
         run: |
-          docker run --network ${{ job.container.network }} --rm ${{ env.TEST_TAG }}
+          docker run --network ${{ job.container.network }} --rm ${{ env.TEST_TAG }} odoo --stop-after-init -i base
       
       - name: Build and push
         id: docker_build
