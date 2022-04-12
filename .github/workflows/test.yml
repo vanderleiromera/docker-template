@@ -34,15 +34,7 @@ env:
 
 jobs:
   data:
-    runs-on: ubuntu-latest
-    steps:
-      # Shared steps
-      - uses: actions/checkout@v3
-      - name: Postgres Status
-        run:
-          docker container list --all
-          docker network list --all
-          
+    runs-on: ubuntu-latest          
     services:
       db:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
@@ -63,10 +55,6 @@ jobs:
 #          - 3.7
 #        odoo-version:
 #          - 14.0
-
-  test:
-    needs: data
-    runs-on: ubuntu-latest
     steps:
       # Shared steps
       - uses: actions/checkout@v3
