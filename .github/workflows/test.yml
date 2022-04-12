@@ -28,6 +28,7 @@ env:
   PGUSER: odoo
   PGPASSWORD: odoopassword
   PGDATABASE: prod
+  NETWORKS: odoo-lan
   PGHOST: db
   PGPORT: 5432
   POSTGRES_HOST_AUTH_METHOD: trust
@@ -50,12 +51,14 @@ jobs:
           POSTGRES_DB: prod
         ports:
           - 5432:5432
-        networks:
-          - odoo-lan
-          
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
+          
+      networks: ${{ env.NETWORKS }}
+          
+                
+      
           
           
 #    strategy:
