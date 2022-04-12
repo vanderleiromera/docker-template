@@ -38,9 +38,10 @@ jobs:
     steps:
       # Shared steps
       - uses: actions/checkout@v3
-      - name: Run Postgres
+      - name: Postgres Status
         run:
-          docker run db
+          docker container ls
+          docker network ls
           
     services:
       db:
@@ -131,8 +132,8 @@ jobs:
           
       - name: Test
         run: |
-          docker run --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
-          docker run --rm ${{ env.TEST_TAG }}
+          docker run --network-alias db --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
+          docker run --network-alias db --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
         id: docker_build
