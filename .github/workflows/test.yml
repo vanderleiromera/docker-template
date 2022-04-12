@@ -30,6 +30,7 @@ env:
   PGDATABASE: prod
   PGHOST: db
   PGPORT: 5432
+  POSTGRES_HOST_AUTH_METHOD: trust
 
 jobs:
   data:
@@ -37,6 +38,10 @@ jobs:
     steps:
       # Shared steps
       - uses: actions/checkout@v3
+      - name: Run Postgres
+        run:
+          docker run db
+          
     services:
       db:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
@@ -44,12 +49,12 @@ jobs:
           POSTGRES_USER: odoo
           POSTGRES_PASSWORD: odoopassword
           POSTGRES_DB: prod
-          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
+          
           
 #    strategy:
 #      matrix:
@@ -126,8 +131,8 @@ jobs:
           
       - name: Test
         run: |
-          docker run --name db --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
-          docker run --name db --rm ${{ env.TEST_TAG }}
+          docker run --rm odoo --stop-after-init -i base ${{ env.TEST_TAG }}
+          docker run --rm ${{ env.TEST_TAG }}
       
       - name: Build and push
         id: docker_build
