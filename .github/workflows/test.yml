@@ -9,46 +9,30 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
-  LANG: "en_US.utf-8"
-  LC_ALL: "en_US.utf-8"
-  PIP_CACHE_DIR: ${{ github.workspace }}/.cache.~/pip
-  PIPX_HOME: ${{ github.workspace }}/.cache.~/pipx
-  POETRY_CACHE_DIR: ${{ github.workspace }}/.cache.~/pypoetry
-  POETRY_VIRTUALENVS_IN_PROJECT: "true"
-  PRE_COMMIT_HOME: ${{ github.workspace }}/.cache.~/pre-commit
-  PYTEST_ADDOPTS: ${{ github.event.inputs.pytest_addopts }}
-  PYTHONIOENCODING: "UTF-8"
   TEST_TAG: vanderleiromera/doodba14_odoo:test
-  #PGUSER: odoo
-  #PGPASSWORD: odoopassword
-  #PGDATABASE: prod
-  #PGHOST: db
-  #PGPORT: 5432
-  #POSTGRES_HOST_AUTH_METHOD: trust
 
 jobs:
-  data:
-    runs-on: ubuntu-latest          
+  test-image:
+    runs-on: ubuntu-latest
     services:
       db:
         image: ghcr.io/tecnativa/postgres-autoconf:13-alpine
         env:
           POSTGRES_USER: odoo
           POSTGRES_PASSWORD: odoopassword
-          POSTGRES_DB: prod
         ports:
           - 5432:5432
-          
+
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
-              
+
     steps:
       # Shared steps
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0Fetch all history for all tags and branches
-          
+
       - name: QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -60,28 +44,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          
+
       - name: Bump version and push tag
         id: tagging
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
-          
-      - uses: actions/cache@v3
-        with:
-          path: |
-            .cache.~
-            .venv
-            ~/.local/bin
-          key: venv ${{ env.CACHE }}
-      - name: Patch $PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      # Let tests issue git commits
-      - run: git config --global user.name CI
-      - run: git config --global user.email CI@GITHUB
-      # Run all tests, which includes linters
-      # Non concurrent first (in parallel)
-      
+
       - name: Build and export to Docker
         uses: docker/build-push-action@v2
         with:
@@ -89,11 +58,11 @@ jobs:
           load: true
           build-args: ODOO_VERSION=14.0
           tags: ${{ env.TEST_TAG }}
-          
+
       - name: Test
         run: |
           docker run --network ${{ job.container.network }} --rm ${{ env.TEST_TAG }} odoo --stop-after-init -i base
-      
+
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
