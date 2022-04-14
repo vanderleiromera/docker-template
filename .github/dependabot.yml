@@ -11,6 +11,14 @@ updates:
       interval: daily
 
   - package-ecosystem: pip
-    directory: "/"
+    directory: "/odoo/custom/dependencies"
     schedule:
       interval: daily
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    # Look for a `Dockerfile` in the `root` directory
+    directory: "/odoo"
+    # Check for updates once a week
+    schedule:
+      interval: "weekly"
