@@ -5,6 +5,11 @@ on:
   push:
     branches:
       - ci-test
+  workflow_dispatch:
+    inputs:
+      testci:
+        description: "Test-CI"
+        required: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.DOO_GITHUB_TOKEN }}
