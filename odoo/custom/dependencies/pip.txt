@@ -15,7 +15,7 @@ pycep_correios
 workalendar
 
 xmldiff==2.4
-lxml==4.6.5
+lxml==4.8.0
 -e git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
 vcrpy
 odoo-test-helper
