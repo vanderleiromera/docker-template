@@ -6,3 +6,5 @@ l10n-brazil:
   - "*"
 account-reconcile:
   - "*"
+account-payment:
+  - "*"

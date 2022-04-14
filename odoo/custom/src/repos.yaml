@@ -51,3 +51,12 @@
   target: origin $ODOO_VERSION
   merges:
     - origin $ODOO_VERSION
+
+./account-payment:
+  defaults:
+    depth: $DEPTH_DEFAULT
+  remotes:
+    origin: https://github.com/OCA/account-payment.git
+  target: origin $ODOO_VERSION
+  merges:
+    - origin $ODOO_VERSION
