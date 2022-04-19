@@ -1,0 +1,41 @@
+#tls:
+#  certificates:
+#    - certFile: "/etc/certs/_wildcard.docker.localhost.pem"
+#      keyFile: "/etc/certs/_wildcard.docker.localhost-key.pem"
+
+http:
+  middlewares:
+    buffering:
+      buffering:
+        retryExpression: IsNetworkError() && Attempts() < 5
+    compress:
+      compress: "true"
+    secure:
+      headers:
+        forceSTSHeader: "true"
+        sslRedirect: "true"
+    nocrawlers:
+      headers:
+        customResponseHeaders:
+          X-Robots-Tag: "noindex, nofollow"
+    doodba:
+      chain:
+        middlewares:
+          - buffering
+          - compress
+          - secure
+    localhost-only:
+      ipWhitelist:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "172.16.0.0/12" # change to your docker subnet
+    prod-headers:
+      headers:
+        customresponseHeaders:
+          # In environment with versioned static files, switch commented
+          # Cache-Control: "private,max-age=31536000"
+          Cache-Control: "private,no-cache"
+    test-headers:
+      headers:
+        customresponseHeaders:
+          Cache-Control: "private,no-cache"
