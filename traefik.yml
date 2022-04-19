@@ -35,7 +35,7 @@ api:
 #certificatesResolvers:
 #  le:
 #    acme:
-#      email: "vanderleiromera@gmail.com"
+#      email: ${TRAEFIK_ACME_EMAIL}
 #      storage: "acme.json"
 # CA server to use.
 # UnComment the line to use Let's Encrypt's staging server
@@ -45,7 +45,7 @@ api:
 certificatesResolvers:
   cloudflare:
     acme:
-      email: "vanderleiromera@gmail.com"
+      email: ${TRAEFIK_ACME_EMAIL}
       storage: "acme.json"
       dnsChallenge:
         provider: cloudflare
