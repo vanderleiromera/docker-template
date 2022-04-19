@@ -14,7 +14,7 @@ providers:
 
 # Uncomment for DEBUG logs
 log:
-  level: DEBUG
+  level: INFO
 
 entryPoints:
   http:
@@ -35,7 +35,7 @@ api:
 certificatesResolvers:
   le:
     acme:
-      email: ${TRAEFIK_ACME_EMAIL}
+      email: "vanderleiromera@gmail.com"
       storage: "acme.json"
       # CA server to use.
       # UnComment the line to use Let's Encrypt's staging server
