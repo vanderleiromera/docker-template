@@ -10,9 +10,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
-      - CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY}
     depends_on:
       - dockersocket
     restart: unless-stopped
@@ -34,7 +31,7 @@ services:
       - "traefik.docker.network=shared"
       - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`)"
       - "traefik.http.middlewares.test-auth.basicauth.users=${TRAEFIK_BASIC_AUTH_USERS}"
-      - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
+      - "traefik.http.routers.proxy.tls.certResolver=le"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
       - "traefik.http.routers.proxy.middlewares=auth"
