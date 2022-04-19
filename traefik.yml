@@ -14,7 +14,7 @@ providers:
 
 # Uncomment for DEBUG logs
 log:
-  level: DEBUG
+  level: INFO
 
 entryPoints:
   http:
@@ -45,7 +45,7 @@ api:
 certificatesResolvers:
   cloudflare:
     acme:
-      email: ${TRAEFIK_ACME_EMAIL}
+      email: "vanderleiromera@gmail.com"
       storage: "acme.json"
       dnsChallenge:
         provider: cloudflare
