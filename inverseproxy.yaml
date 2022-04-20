@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   proxy:
-    image: traefik:v2.6
+    image: traefik:2.6.3
     networks:
       shared:
       private:
@@ -32,14 +32,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=shared"
-      - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`)"
-      - "traefik.http.middlewares.auth-test.basicauth.users=test:$$2a$$12$$do7J8NXD3yFluZqiyOsQgOdr/1pdkuLqEnqXHhUtjAfvREOjJiWba"
+      - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
+        (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
       - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
       - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.tls.domains[0].sans=$TRAEFIK_SUB_DOMAIN"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
-      - "traefik.http.routers.proxy.middlewares=auth-test"
+      - "traefik.http.routers.proxy.middlewares=auth"
 
   dockersocket:
     image: tecnativa/docker-socket-proxy
