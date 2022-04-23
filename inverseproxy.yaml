@@ -33,7 +33,7 @@ services:
     # Also note that dollar signs should NOT be doubled when they not evaluated (e.g. Ansible docker_container module).
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=shared"
+      - "traefik.docker.network=inverseproxy_shared"
       - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
         (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
