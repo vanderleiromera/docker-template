@@ -34,7 +34,7 @@ services:
       ? traefik.http.middlewares.myproject-odoo-14-0-prod-forbid-crawlers.headers.customResponseHeaders.X-Robots-Tag
       : "noindex, nofollow"
       traefik.http.middlewares.myproject-odoo-14-0-prod-forceSecure.headers.forceSTSHeader: "true"
-      traefik.http.middlewares.myproject-odoo-14-0-prod-forceSecure.headers.sslRedirect: "true"
+      #      traefik.http.middlewares.myproject-odoo-14-0-prod-forceSecure.headers.sslRedirect: "true"
       traefik.http.services.myproject-odoo-14-0-prod-main.loadbalancer.server.port: 8069
       traefik.http.services.myproject-odoo-14-0-prod-longpolling.loadbalancer.server.port: 8072
       traefik.http.routers.myproject-odoo-14-0-prod-main-0.rule: Host(`devstillus.xyz`)

@@ -32,7 +32,7 @@ services:
       - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
         (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
-      - "traefik.http.routers.proxy.tls.certResolver=le"
+      - "traefik.http.routers.proxy.tls.certResolver=letsencrypt"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
       - "traefik.http.routers.proxy.middlewares=auth"

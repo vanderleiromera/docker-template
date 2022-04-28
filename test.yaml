@@ -96,7 +96,7 @@ services:
       ? traefik.http.middlewares.myproject-odoo-14-0-test-forbid-crawlers.headers.customResponseHeaders.X-Robots-Tag
       : "noindex, nofollow"
       traefik.http.middlewares.myproject-odoo-14-0-test-forceSecure.headers.forceSTSHeader: "true"
-      traefik.http.middlewares.myproject-odoo-14-0-test-forceSecure.headers.sslRedirect: "true"
+      #      traefik.http.middlewares.myproject-odoo-14-0-test-forceSecure.headers.sslRedirect: "true"
       traefik.http.routers.myproject-odoo-14-0-test-mailhog-0.rule:
         Host(`test.devstillus.xyz`) && PathPrefix(`/smtpfake/`)
       traefik.http.routers.myproject-odoo-14-0-test-mailhog-0.service: myproject-odoo-14-0-test-mailhog

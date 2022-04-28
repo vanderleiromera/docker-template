@@ -26,30 +26,21 @@ entryPoints:
           scheme: https
   https:
     http:
-      tls: "true"
+      tls: #"true"
+        certResolver: letsencrypt
     address: ":443"
 
 api:
   dashboard: true
 
 certificatesResolvers:
-  le:
+  letsencrypt:
     acme:
       email: "vanderleiromera@gmail.com"
-      storage: "acme.json"
+      storage: "/etc/traefik/acme/acme.json"
       # Optional
       # Default: "https://acme-v02.api.letsencrypt.org/directory"
       # CA server test to use.
       # UnComment the line to use Let's Encrypt's staging server
-      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      # caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
       tlsChallenge: {}
-#certificatesResolvers:
-#  cloudflare:
-#    acme:
-#      email: ${TRAEFIK_ACME_EMAIL}
-#      storage: "acme.json"
-#      dnsChallenge:
-#        provider: cloudflare
-#        resolvers:
-#          - "1.1.1.1:53"
-#          - "1.0.0.1:53"
