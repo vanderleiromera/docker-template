@@ -43,8 +43,8 @@ services:
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
       - "traefik.http.routers.proxy.middlewares=auth"
+      - "traefik.http.routers.proxy.middlewares=secHeaders@file"
       - "traefik.http.routers.proxy.tls=true"
-      #    - "traefik.http.routers.proxy.tls.options=modern@file"
       - "providers.file.filename=/etc/traefik/config.yml"
 
   dockersocket:

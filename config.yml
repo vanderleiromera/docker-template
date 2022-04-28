@@ -4,8 +4,6 @@ tls:
       keyFile: "/etc/certs/cloudflare-key.pem"
   options:
     default:
-      # https://github.com/traefik/traefik/issues/7493
-      # modern:
       minVersion: VersionTLS12
       cipherSuites:
         - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
@@ -18,11 +16,6 @@ tls:
         - CurveP521
         - CurveP384
       sniStrict: true
-#  stores:
-#    default:
-#      defaultCertificate:
-#        - certFile: "/etc/certs/cloudflare.pem"
-#          keyFile: "/etc/certs/cloudflare-key.pem"
 
 http:
   middlewares:
@@ -31,7 +24,7 @@ http:
         browserXssFilter: true
         contentTypeNosniff: true
         frameDeny: true
-        sslRedirect: true
+        #sslRedirect: true
         #HSTS Configuration
         stsIncludeSubdomains: true
         stsPreload: true

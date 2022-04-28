@@ -52,7 +52,7 @@ certificatesResolvers:
       # Default: "https://acme-v02.api.letsencrypt.org/directory"
       # CA server test to use.
       # UnComment the line to use Let's Encrypt's staging server
-      # caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      #caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
       dnsChallenge:
         provider: cloudflare
         delayBeforeCheck: 0
