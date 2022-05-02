@@ -1,0 +1,66 @@
+tls:
+  certificates:
+    - certFile: "/etc/certs/cloudflare.pem"
+      keyFile: "/etc/certs/cloudflare-key.pem"
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
+      sniStrict: true
+
+http:
+  middlewares:
+    secHeaders:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        frameDeny: true
+        #sslRedirect: true
+        #HSTS Configuration
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+    buffering:
+      buffering:
+        retryExpression: IsNetworkError() && Attempts() < 5
+    compress:
+      compress: "true"
+    secure:
+      headers:
+        forceSTSHeader: "true"
+        sslRedirect: "true"
+    nocrawlers:
+      headers:
+        customResponseHeaders:
+          X-Robots-Tag: "noindex, nofollow"
+    doodba:
+      chain:
+        middlewares:
+          - buffering
+          - compress
+          - secure
+    localhost-only:
+      ipWhitelist:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "172.16.0.0/12" # change to your docker subnet
+    prod-headers:
+      headers:
+        customresponseHeaders:
+          # In environment with versioned static files, switch commented
+          # Cache-Control: "private,max-age=31536000"
+          Cache-Control: "private,no-cache"
+    test-headers:
+      headers:
+        customresponseHeaders:
+          Cache-Control: "private,no-cache"

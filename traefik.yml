@@ -1,0 +1,61 @@
+global:
+  sendAnonymousUsage: false
+
+providers:
+  docker:
+    endpoint: "http://dockersocket:2375"
+    watch: true
+    exposedByDefault: false
+    network: inverseproxy_shared
+
+  file:
+    filename: /etc/traefik/config.yml
+    watch: true
+
+# Uncomment for DEBUG logs
+log:
+  level: INFO
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    http:
+      tls: #"true"
+        certResolver: cloudflare
+    address: ":443"
+
+api:
+  dashboard: true
+
+#certificatesResolvers:
+#  le:
+#    acme:
+#      email: ${TRAEFIK_ACME_EMAIL}
+#      storage: "acme.json"
+# CA server to use.
+# UnComment the line to use Let's Encrypt's staging server
+# caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+#      tlsChallenge: {}
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: "vanderleiromera@gmail.com"
+      storage: "/etc/traefik/acme/acme.json"
+      # Optional
+      # Default: "https://acme-v02.api.letsencrypt.org/directory"
+      # CA server test to use.
+      # UnComment the line to use Let's Encrypt's staging server
+      #caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
