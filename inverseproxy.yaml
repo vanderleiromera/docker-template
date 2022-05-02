@@ -36,14 +36,16 @@ services:
       - "traefik.docker.network=inverseproxy_shared"
       - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
         (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      # middleware de autenticação de administrador com autenticação básica HTTP
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
+      # Ativa a compactação gzip
+      - "traefik.http.middlewares.def-compress.compress=true"
       - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
       - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.tls.domains[0].sans=$TRAEFIK_SUB_DOMAIN"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
-      - "traefik.http.routers.proxy.middlewares=auth"
-      - "traefik.http.routers.proxy.middlewares=secHeaders@file"
+      - "traefik.http.routers.proxy.middlewares=auth,secHeaders@file,def-compress"
       - "traefik.http.routers.proxy.tls=true"
       - "providers.file.filename=/etc/traefik/config.yml"
 
