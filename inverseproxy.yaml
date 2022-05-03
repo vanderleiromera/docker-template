@@ -44,7 +44,7 @@ services:
       - "traefik.http.middlewares.def-compress.compress=true"
       - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
       - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
-      - "traefik.http.routers.proxy.tls.domains[0].sans=$TRAEFIK_SUB_DOMAIN"
+      - "traefik.http.routers.proxy.tls.domains[0].sans=*.$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
       - "traefik.http.routers.proxy.middlewares=auth,secHeaders@file,def-compress"
