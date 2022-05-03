@@ -36,6 +36,8 @@ services:
       - "traefik.docker.network=inverseproxy_shared"
       - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
         (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.permanent=true"
       # middleware de autenticação de administrador com autenticação básica HTTP
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
       # Ativa a compactação gzip
