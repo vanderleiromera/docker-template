@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   proxy:
-    image: traefik:2.6.3
+    image: traefik:v2.7
     networks:
       shared:
       private:
@@ -10,43 +10,76 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_API_KEY=${CF_API_KEY}
-      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
-      - CF_ZONE_API_TOKEN=${CF_ZONE_API_TOKEN}
     depends_on:
       - dockersocket
     restart: unless-stopped
     privileged: true
     tty: true
     volumes:
-      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      #  - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config.yml:/etc/traefik/config.yml:ro
       - ./certs:/etc/certs:rw,Z
-      - acme:/etc/traefik/acme:rw,Z
+      #  - acme:/etc/traefik/acme:rw,Z
+      - ./acme/acme.json:/acme.json
     #
     # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
     # To create user:password pair, it's possible to use this command:
     # echo $(htpasswd -nB traefik-admin) | sed -e s/\\$/\\$\\$/g
     #
     # Also note that dollar signs should NOT be doubled when they not evaluated (e.g. Ansible docker_container module).
+    # reference:
+    # https://medium.com/@leandrobarral/traefik-2-setup-reverse-proxy-with-lets-encrypt-and-cloudflare-support-46d68b39ca71
+    command:
+      - --api=true
+      - --api.dashboard=true
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      #- --entrypoints.http.http.redirections.entrypoint.scheme=https
+      - --entrypoints.https.http.tls.domains[0].main=$TRAEFIK_DOMAIN
+      - --entrypoints.https.http.tls.domains[0].sans=*.$TRAEFIK_DOMAIN
+      - --certificatesresolvers.cloudflare.acme.email=$TRAEFIK_ACME_EMAIL
+      - --certificatesresolvers.cloudflare.acme.dnschallenge=true
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.delaybeforecheck=0
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers[0]=1.1.1.1:53
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers[1]=8.8.8.8:53
+      # habilita servidor de teste acme
+      #- --certificatesresolvers.cloudflare.acme.caServer=$TRAEFIK_ACME_CASERVER
+      - --certificatesresolvers.cloudflare.acme.storage=/acme.json
+      - --providers.file.filename=/etc/traefik/config.yml
+      - --providers.file.watch=true
+      - --providers.docker.endpoint=http://dockersocket:2375
+      #- --api.debug=$TRAEFIK_DEBUG
+      #- --log=$TRAEFIK_LOG
+      - --log.level=INFO
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=inverseproxy_shared
+
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - CF_ZONE_API_TOKEN=${CF_ZONE_API_TOKEN}
+
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=inverseproxy_shared"
       - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
         (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.permanent=true"
       # middleware de autenticação de administrador com autenticação básica HTTP
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
       # Ativa a compactação gzip
       - "traefik.http.middlewares.def-compress.compress=true"
-      - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
-      - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
-      - "traefik.http.routers.proxy.tls.domains[0].sans=$TRAEFIK_SUB_DOMAIN"
+      #- "traefik.http.routers.proxy.tls.certResolver=cloudflare"
+      #- "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
+      #- "traefik.http.routers.proxy.tls.domains[0].sans=*.$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
       - "traefik.http.routers.proxy.middlewares=auth,secHeaders@file,def-compress"
-      - "traefik.http.routers.proxy.tls=true"
+      #- "traefik.http.routers.proxy.tls=true"
       - "providers.file.filename=/etc/traefik/config.yml"
 
   dockersocket:
@@ -76,6 +109,5 @@ networks:
       encrypted: 1
 
   public:
-
-volumes:
-  acme:
+#volumes:
+#  acme:

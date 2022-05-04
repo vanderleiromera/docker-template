@@ -28,6 +28,9 @@ entryPoints:
     http:
       tls: #"true"
         certResolver: cloudflare
+    #        domains:
+    #          - main: ${TRAEFIK_DOMAIN}
+    #            sans: ${TRAEFIK_DOMAIN}
     address: ":443"
 
 api:

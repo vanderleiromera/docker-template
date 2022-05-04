@@ -1,7 +1,7 @@
 tls:
   certificates:
-    - certFile: "/etc/certs/cloudflare.pem"
-      keyFile: "/etc/certs/cloudflare-key.pem"
+    - certFile: "/etc/certs/cloudflare.crt"
+      keyFile: "/etc/certs/cloudflare.key"
   options:
     default:
       minVersion: VersionTLS12
