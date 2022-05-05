@@ -37,7 +37,7 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: "vanderleiromera@gmail.com"
-      storage: "/etc/traefik/acme/acme.json"
+      storage: "acme.json"
       # Optional
       # Default: "https://acme-v02.api.letsencrypt.org/directory"
       # CA server test to use.
