@@ -1,37 +1,60 @@
-version: "2.1"
+version: "3.9"
 
 services:
   proxy:
-    image: docker.io/traefik:1.6-alpine
+    image: traefik:v2.7
     networks:
       shared:
       private:
       public:
-    volumes:
-      - acme:/etc/traefik/acme:rw,Z
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - CF_ZONE_API_TOKEN=${CF_ZONE_API_TOKEN}
     depends_on:
       - dockersocket
     restart: unless-stopped
     privileged: true
     tty: true
-    command:
-      - --ACME.ACMELogging
-      - --ACME.Email=vanderleiromera@gmail.com
-      - --ACME.EntryPoint=https
-      - --ACME.HTTPChallenge.entryPoint=http
-      - --ACME.OnHostRule
-      - --ACME.Storage=/etc/traefik/acme/acme.json
-      - --DefaultEntryPoints=http,https
-      - --EntryPoints=Name:http Address::80 Redirect.EntryPoint:https
-      - --EntryPoints=Name:https Address::443 TLS
-      - --LogLevel=INFO
-      - --Docker
-      - --Docker.EndPoint=http://dockersocket:2375
-      - --Docker.ExposedByDefault=false
-      - --Docker.Watch
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config.yml:/etc/traefik/config.yml:ro
+      - ./certs:/etc/certs:rw,Z
+      - acme:/etc/traefik/acme:rw,Z
+    #
+    # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
+    # To create user:password pair, it's possible to use this command:
+    # echo $(htpasswd -nB traefik-admin) | sed -e s/\\$/\\$\\$/g
+    #
+    # Also note that dollar signs should NOT be doubled when they not evaluated (e.g. Ansible docker_container module).
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=inverseproxy_shared"
+      - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
+        (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+
+      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.permanent=true"
+      # middleware de autenticação de administrador com autenticação básica HTTP
+      #- "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
+      - "traefik.http.middlewares.auth.basicauth.usersfile=/etc/certs/usersfile"
+      - "traefik.http.middlewares.auth.basicauth.removeheader=true"
+      # Ativa a compactação gzip
+      - "traefik.http.middlewares.def-compress.compress=true"
+      - "traefik.http.middlewares.strip.stripprefix.prefixes=/dashboard"
+
+      - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
+      - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
+      - "traefik.http.routers.proxy.tls.domains[0].sans=*.$TRAEFIK_DOMAIN"
+      - "traefik.http.routers.proxy.entrypoints=https"
+      - "traefik.http.routers.proxy.service=api@internal"
+      - "traefik.http.routers.proxy.middlewares=auth,secHeaders@file,def-compress,strip"
+      - "traefik.http.routers.proxy.tls=true"
+      - "providers.file.filename=/etc/traefik/config.yml"
 
   dockersocket:
     image: tecnativa/docker-socket-proxy
