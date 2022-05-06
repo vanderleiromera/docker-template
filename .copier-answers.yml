@@ -2,7 +2,7 @@
 _commit: v4.2.0
 _src_path: gh:Tecnativa/doodba-copier-template
 backup_deletion: false
-backup_dst: boto3+s3://paranastillus
+backup_dst: boto3+s3://paranastillus[/dev]
 backup_email_from: null
 backup_email_to: null
 backup_image_version: latest

@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3.1.1
+      - uses: actions/setup-python@v3.1.2
         with:
           # The pylint-odoo version we use here does not support python 3.10
           # https://github.com/OCA/oca-addons-repo-template/issues/80
@@ -53,13 +53,13 @@ jobs:
           fetch-depth: 0Fetch all history for all tags and branches
 
       - name: QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to Dockerhub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -71,7 +71,7 @@ jobs:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
 
       - name: Build and export to Docker
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./odoo
           load: true
@@ -84,7 +84,7 @@ jobs:
 
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./odoo
           file: ./odoo/Dockerfile
