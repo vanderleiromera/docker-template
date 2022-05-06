@@ -1,7 +1,16 @@
 tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "/etc/certs/cloudflare.crt"
+        keyFile: "/etc/certs/cloudflare.key"
+
   certificates:
     - certFile: "/etc/certs/cloudflare.crt"
       keyFile: "/etc/certs/cloudflare.key"
+      stores:
+        - default
+
   options:
     default:
       minVersion: VersionTLS12
