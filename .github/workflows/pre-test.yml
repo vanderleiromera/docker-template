@@ -53,7 +53,7 @@ jobs:
           fetch-depth: 0Fetch all history for all tags and branches
 
       - name: QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Docker Buildx
         uses: docker/setup-buildx-action@v1
