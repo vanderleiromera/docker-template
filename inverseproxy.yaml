@@ -24,7 +24,9 @@ services:
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config.yml:/etc/traefik/config.yml:ro
       - ./certs:/etc/certs:rw,Z
-      - acme:/etc/traefik/acme:rw,Z
+      - ./acme/acme.json:/acme.json
+    #  ACME NOTES
+    # mkdir acme, touch acme.json, chmod 600 acme.json
     #
     # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
     # To create user:password pair, it's possible to use this command:
@@ -46,13 +48,14 @@ services:
       # Ativa a compactação gzip
       - "traefik.http.middlewares.def-compress.compress=true"
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/dashboard"
-
+      # TLS origin pull - comentar tls options pra desativar cloudflare ...
+      - "traefik.http.routers.proxy.tls.options=default"
       - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
       - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.tls.domains[0].sans=*.$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
-      - "traefik.http.routers.proxy.middlewares=auth,secHeaders@file,def-compress,strip"
+      - "traefik.http.routers.proxy.middlewares=auth,secure@file,def-compress,strip"
       - "traefik.http.routers.proxy.tls=true"
       - "providers.file.filename=/etc/traefik/config.yml"
 
