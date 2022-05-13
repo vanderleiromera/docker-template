@@ -30,3 +30,4 @@
 /.docker/
 .env
 certs/
+acme/
