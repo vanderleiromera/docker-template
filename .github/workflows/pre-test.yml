@@ -88,6 +88,7 @@ jobs:
         with:
           context: ./odoo
           file: ./odoo/Dockerfile
+          no-cache: true
           platforms: linux/amd64
           tags: vanderleiromera/doodba14_odoo:${{ steps.tagging.outputs.new_version }}
           build-args: ODOO_VERSION=14.0
