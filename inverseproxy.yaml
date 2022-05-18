@@ -25,6 +25,7 @@ services:
       - ./config.yml:/etc/traefik/config.yml:ro
       - ./certs:/etc/certs:rw,Z
       - ./acme/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     #  ACME NOTES
     # mkdir acme, touch acme.json, chmod 600 acme.json
     #
@@ -59,6 +60,31 @@ services:
       - "traefik.http.routers.proxy.tls=true"
       - "providers.file.filename=/etc/traefik/config.yml"
 
+  portainer:
+    image: portainer/portainer-ce:2.13.1
+    networks:
+      shared:
+      private:
+      public:
+
+    command: -H unix:///var/run/docker.sock
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    labels:
+      # Frontend
+      - "traefik.enable=true"
+      - "traefik.docker.network=inverseproxy_shared"
+      - "traefik.http.routers.frontend.rule=Host(`${TRAEFIK_MONITOR}`)"
+      - "traefik.http.routers.frontend.entrypoints=https"
+      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
+
   dockersocket:
     image: tecnativa/docker-socket-proxy
     privileged: true
@@ -89,3 +115,4 @@ networks:
 
 volumes:
   acme:
+  portainer_data:
