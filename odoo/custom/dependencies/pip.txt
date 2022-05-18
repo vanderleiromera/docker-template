@@ -22,4 +22,4 @@ odoo-test-helper
 
 # OCA Modules
 pysftp
-python-barcode == 0.12.0
+python-barcode == 0.14.0
