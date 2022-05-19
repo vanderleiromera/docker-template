@@ -25,7 +25,6 @@ services:
       - ./config.yml:/etc/traefik/config.yml:ro
       - ./certs:/etc/certs:rw,Z
       - ./acme/acme.json:/acme.json
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     #  ACME NOTES
     # mkdir acme, touch acme.json, chmod 600 acme.json
     #
@@ -44,8 +43,9 @@ services:
       - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.permanent=true"
       # middleware de autenticação de administrador com autenticação básica HTTP
       #- "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
-      - "traefik.http.middlewares.auth.basicauth.usersfile=/etc/certs/usersfile"
-      - "traefik.http.middlewares.auth.basicauth.removeheader=true"
+      # Autenticação por usersfile
+      #- "traefik.http.middlewares.auth.basicauth.usersfile=/etc/certs/usersfile"
+      #- "traefik.http.middlewares.auth.basicauth.removeheader=true"
       # Ativa a compactação gzip
       - "traefik.http.middlewares.def-compress.compress=true"
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/dashboard"
@@ -56,7 +56,8 @@ services:
       - "traefik.http.routers.proxy.tls.domains[0].sans=*.$TRAEFIK_DOMAIN"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
-      - "traefik.http.routers.proxy.middlewares=auth,secure@file,def-compress,strip"
+      # - auth = autenticação usersfile, oauth = autenticação google
+      - "traefik.http.routers.proxy.middlewares=oauth,secure@file,def-compress,strip"
       - "traefik.http.routers.proxy.tls=true"
       - "providers.file.filename=/etc/traefik/config.yml"
 
@@ -84,6 +85,38 @@ services:
       - "traefik.http.routers.frontend.service=frontend"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
+
+  oauth:
+    image: thomseddon/traefik-forward-auth:2
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      shared:
+      private:
+      public:
+    environment:
+      PROVIDERS_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      PROVIDERS_GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SECRET: ${OAUTH_SECRET}
+      COOKIE_DOMAIN: ${TRAEFIK_DOMAIN}
+      INSECURE_COOKIE: "false"
+      AUTH_HOST: oauth.${TRAEFIK_DOMAIN}
+      WHITELIST: ${OAUTH_EMAIL}
+    labels:
+      traefik.http.middlewares.oauth.forwardauth.address: http://oauth:4181
+      traefik.http.middlewares.oauth.forwardauth.authResponseHeaders: X-Forwarded-User
+      traefik.http.middlewares.oauth.forwardauth.trustForwardHeader: "true"
+      traefik.http.routers.oauth.middlewares: oauth
+      traefik.enable: "true"
+      traefik.docker.network: inverseproxy_shared
+      traefik.http.routers.oauth.rule: Host(`oauth.${TRAEFIK_DOMAIN}`)
+      traefik.http.routers.oauth.entrypoints: https
+      traefik.http.routers.oauth.tls: "true"
+      traefik.http.routers.oauth.tls.certresolver: cloudflare
+      traefik.http.services.oauth.loadbalancer.server.port: 4181
 
   dockersocket:
     image: tecnativa/docker-socket-proxy
