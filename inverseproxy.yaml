@@ -69,6 +69,7 @@ services:
       public:
     environment:
       - DOCKER_HOST=dockersocket:2375
+
     command: -H unix:///var/run/docker.sock
     restart: unless-stopped
     security_opt:
