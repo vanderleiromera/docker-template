@@ -62,7 +62,7 @@ http:
         forceSTSHeader: true
         referrerPolicy: "same-origin"
         customFrameOptionsValue: "SAMEORIGIN"
-        contentSecurityPolicy: script-src 'self'
+        #  contentSecurityPolicy: script-src 'self'
         permissionsPolicy: geolocation=(), microphone=()
     buffering:
       buffering:
