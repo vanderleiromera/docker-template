@@ -37,35 +37,37 @@ services:
       # traefik.http.middlewares.myproject-odoo-14-0-prod-forceSecure.headers.sslRedirect: "true"
       traefik.http.services.myproject-odoo-14-0-prod-main.loadbalancer.server.port: 8069
       traefik.http.services.myproject-odoo-14-0-prod-longpolling.loadbalancer.server.port: 8072
-      traefik.http.routers.myproject-odoo-14-0-prod-main-0.rule: Host(`devstillus.xyz`)
-      traefik.http.routers.myproject-odoo-14-0-prod-main-0.service: myproject-odoo-14-0-prod-main
-      traefik.http.routers.myproject-odoo-14-0-prod-main-0.middlewares:
-        myproject-odoo-14-0-prod-buffering, myproject-odoo-14-0-prod-compress,
-        myproject-odoo-14-0-prod-forceSecure
+      #traefik.http.routers.myproject-odoo-14-0-prod-main-0.rule: Host(`devstillus.xyz`)
+      #traefik.http.routers.myproject-odoo-14-0-prod-main-0.service: myproject-odoo-14-0-prod-main
+      #traefik.http.routers.myproject-odoo-14-0-prod-main-0.middlewares:
+      #  myproject-odoo-14-0-prod-buffering, myproject-odoo-14-0-prod-compress,
+      #  myproject-odoo-14-0-prod-forceSecure
       traefik.http.routers.myproject-odoo-14-0-prod-main-secure-0.rule: Host(`devstillus.xyz`)
       traefik.http.routers.myproject-odoo-14-0-prod-main-secure-0.service: myproject-odoo-14-0-prod-main
       traefik.http.routers.myproject-odoo-14-0-prod-main-secure-0.middlewares:
         myproject-odoo-14-0-prod-buffering, myproject-odoo-14-0-prod-compress,
         myproject-odoo-14-0-prod-forceSecure
       traefik.http.routers.myproject-odoo-14-0-prod-main-secure-0.tls: "true"
+      traefik.http.routers.myproject-odoo-14-0-prod-main-secure-0.entrypoints: https
       traefik.http.routers.myproject-odoo-14-0-prod-main-secure-0.tls.certResolver: cloudflare
-      traefik.http.routers.myproject-odoo-14-0-prod-longpolling-0.rule:
-        Host(`devstillus.xyz`) && PathPrefix(`/longpolling/`)
-      traefik.http.routers.myproject-odoo-14-0-prod-longpolling-0.service: myproject-odoo-14-0-prod-longpolling
-      traefik.http.routers.myproject-odoo-14-0-prod-longpolling-0.middlewares: myproject-odoo-14-0-prod-forceSecure
+      #traefik.http.routers.myproject-odoo-14-0-prod-longpolling-0.rule:
+      #  Host(`devstillus.xyz`) && PathPrefix(`/longpolling/`)
+      #traefik.http.routers.myproject-odoo-14-0-prod-longpolling-0.service: myproject-odoo-14-0-prod-longpolling
+      #traefik.http.routers.myproject-odoo-14-0-prod-longpolling-0.middlewares: myproject-odoo-14-0-prod-forceSecure
       traefik.http.routers.myproject-odoo-14-0-prod-longpolling-secure-0.rule:
         Host(`devstillus.xyz`) && PathPrefix(`/longpolling/`)
       traefik.http.routers.myproject-odoo-14-0-prod-longpolling-secure-0.service: myproject-odoo-14-0-prod-longpolling
       traefik.http.routers.myproject-odoo-14-0-prod-longpolling-secure-0.middlewares: myproject-odoo-14-0-prod-forceSecure
       traefik.http.routers.myproject-odoo-14-0-prod-longpolling-secure-0.tls: "true"
+      traefik.http.routers.myproject-odoo-14-0-prod-longpolling-secure-0.entrypoints: http
       traefik.http.routers.myproject-odoo-14-0-prod-longpolling-secure-0.tls.certResolver: cloudflare
-      traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-0.rule:
-        Host(`devstillus.xyz`) && (PathPrefix(`/web/`, `/website/info/`) || Path(`/web`,
-        `/website/info`))
-      traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-0.service: myproject-odoo-14-0-prod-main
-      traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-0.middlewares:
-        myproject-odoo-14-0-prod-buffering, myproject-odoo-14-0-prod-compress,
-        myproject-odoo-14-0-prod-forbid-crawlers, myproject-odoo-14-0-prod-forceSecure
+      #traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-0.rule:
+      #  Host(`devstillus.xyz`) && (PathPrefix(`/web/`, `/website/info/`) || Path(`/web`,
+      #  `/website/info`))
+      #traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-0.service: myproject-odoo-14-0-prod-main
+      #traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-0.middlewares:
+      #  myproject-odoo-14-0-prod-buffering, myproject-odoo-14-0-prod-compress,
+      #  myproject-odoo-14-0-prod-forbid-crawlers, myproject-odoo-14-0-prod-forceSecure
       traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-secure-0.rule:
         Host(`devstillus.xyz`) && (PathPrefix(`/web/`, `/website/info/`) || Path(`/web`,
         `/website/info`))
@@ -74,6 +76,7 @@ services:
       : myproject-odoo-14-0-prod-buffering, myproject-odoo-14-0-prod-compress,
         myproject-odoo-14-0-prod-forbid-crawlers, myproject-odoo-14-0-prod-forceSecure
       traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-secure-0.tls: "true"
+      traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-secure-0.entrypoints: https
       traefik.http.routers.myproject-odoo-14-0-prod-forbiddenCrawlers-secure-0.tls.certResolver: cloudflare
 
   db:
