@@ -132,6 +132,10 @@ services:
       - apparmor:unconfined
     environment:
       - DOCKER_HOST=dockersocket:2375
+      - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN}
+      - NETDATA_CLAIM_URL=${NETDATA_CLAIM_URL}
+      - NETDATA_CLAIM_ROOMS=${NETDATA_CLAIM_ROOMS}
+
     volumes:
       - netdataconfig:/etc/netdata
       - netdatalib:/var/lib/netdata
@@ -146,6 +150,8 @@ services:
       - "traefik.docker.network=inverseproxy_shared"
       - "traefik.http.routers.netdata.rule=Host(`netdata.${TRAEFIK_DOMAIN}`)"
       - "traefik.http.routers.netdata.entrypoints=https"
+      # Ao executar o container pela primeira vez, pode não conectar o cloud, devido ao https
+      # Habilite entrypoints=http - ao conectar, desabilite novamente...
       - "traefik.http.routers.netdata.tls=true"
       - "traefik.http.routers.netdata.tls.certresolver=cloudflare"
       - "traefik.http.services.netdata.loadbalancer.server.port=19999"
