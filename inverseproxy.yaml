@@ -137,7 +137,8 @@ services:
       - NETDATA_CLAIM_ROOMS=${NETDATA_CLAIM_ROOMS}
 
     volumes:
-      - netdataconfig:/etc/netdata
+      - ./netdataconfig/netdata:/etc/netdata:ro
+      #  - netdataconfig:/etc/netdata
       - netdatalib:/var/lib/netdata
       - netdatacache:/var/cache/netdata
       - /etc/passwd:/host/etc/passwd:ro
@@ -188,6 +189,6 @@ networks:
 volumes:
   acme:
   portainer_data:
-  netdataconfig:
+  #  netdataconfig:
   netdatalib:
   netdatacache:
