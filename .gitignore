@@ -31,3 +31,4 @@
 .env
 certs/
 acme/
+netdataconfig/netdata/health_alarm_notify.conf
