@@ -3,6 +3,7 @@ global:
 
 providers:
   docker:
+    swarmMode: true
     endpoint: "http://dockersocket:2375"
     watch: true
     exposedByDefault: false

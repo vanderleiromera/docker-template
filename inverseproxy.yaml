@@ -1,165 +1,50 @@
-version: "3.9"
+version: "3"
 
 services:
   proxy:
     image: traefik:v2.7
-    networks:
-      shared:
-      private:
-      public:
     ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_API_KEY=${CF_API_KEY}
-      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
-      - CF_ZONE_API_TOKEN=${CF_ZONE_API_TOKEN}
+      - 80:80
+      - 443:443
     depends_on:
       - dockersocket
-    restart: unless-stopped
-    privileged: true
-    tty: true
     volumes:
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config.yml:/etc/traefik/config.yml:ro
       - ./certs:/etc/certs:rw,Z
       - ./acme/acme.json:/acme.json
-    #  ACME NOTES
-    # mkdir acme, touch acme.json, chmod 600 acme.json
-    #
-    # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
-    # To create user:password pair, it's possible to use this command:
-    # echo $(htpasswd -nB traefik-admin) | sed -e s/\\$/\\$\\$/g
-    #
-    # Also note that dollar signs should NOT be doubled when they not evaluated (e.g. Ansible docker_container module).
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.proxy.rule=Host(`${TRAEFIK_DOMAIN}`) &&
-        (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-
-      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.proxy-redirectscheme.redirectscheme.permanent=true"
-      # middleware de autenticação de administrador com autenticação básica HTTP
-      #- "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERS_PASS}"
-      # Autenticação por usersfile
-      #- "traefik.http.middlewares.auth.basicauth.usersfile=/etc/certs/usersfile"
-      #- "traefik.http.middlewares.auth.basicauth.removeheader=true"
-      # Ativa a compactação gzip
-      - "traefik.http.middlewares.def-compress.compress=true"
-      - "traefik.http.middlewares.strip.stripprefix.prefixes=/dashboard"
-      # TLS origin pull - comentar tls options pra desativar cloudflare ...
-      - "traefik.http.routers.proxy.tls.options=default"
-      - "traefik.http.routers.proxy.tls.certResolver=cloudflare"
-      - "traefik.http.routers.proxy.tls.domains[0].main=$TRAEFIK_DOMAIN"
-      - "traefik.http.routers.proxy.tls.domains[0].sans=*.$TRAEFIK_DOMAIN"
-      - "traefik.http.routers.proxy.entrypoints=https"
-      - "traefik.http.routers.proxy.service=api@internal"
-      # - auth = autenticação usersfile, oauth = autenticação google
-      - "traefik.http.routers.proxy.middlewares=oauth,secure@file,def-compress,strip"
-      - "traefik.http.routers.proxy.tls=true"
-      - "providers.file.filename=/etc/traefik/config.yml"
-
-  portainer:
-    image: portainer/portainer-ce:2.13.1
+      # So that Traefik can listen to the Docker events
+      #- /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       shared:
       private:
-      public:
-    environment:
-      - DOCKER_HOST=dockersocket:2375
-    command: -H unix:///var/run/docker.sock
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - portainer_data:/data
-    labels:
-      # Frontend
-      - "traefik.enable=true"
-      - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.frontend.rule=Host(`${TRAEFIK_MONITOR}`)"
-      - "traefik.http.routers.frontend.entrypoints=https"
-      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
-      - "traefik.http.routers.frontend.service=frontend"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
-
-  oauth:
-    image: thomseddon/traefik-forward-auth:2
-    restart: unless-stopped
-    stdin_open: true
-    tty: true
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      shared:
-      private:
-      public:
-    environment:
-      PROVIDERS_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      PROVIDERS_GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      SECRET: ${OAUTH_SECRET}
-      COOKIE_DOMAIN: ${TRAEFIK_DOMAIN}
-      INSECURE_COOKIE: "false"
-      AUTH_HOST: oauth.${TRAEFIK_DOMAIN}
-      WHITELIST: ${OAUTH_EMAIL}
-    labels:
-      traefik.http.middlewares.oauth.forwardauth.address: http://oauth:4181
-      traefik.http.middlewares.oauth.forwardauth.authResponseHeaders: X-Forwarded-User
-      traefik.http.middlewares.oauth.forwardauth.trustForwardHeader: "true"
-      traefik.http.routers.oauth.middlewares: oauth
-      traefik.enable: "true"
-      traefik.docker.network: inverseproxy_shared
-      traefik.http.routers.oauth.rule: Host(`oauth.${TRAEFIK_DOMAIN}`)
-      traefik.http.routers.oauth.entrypoints: https
-      traefik.http.routers.oauth.tls: "true"
-      traefik.http.routers.oauth.tls.certresolver: cloudflare
-      traefik.http.services.oauth.loadbalancer.server.port: 4181
-
-  netdata:
-    image: netdata/netdata:stable
-    networks:
-      shared:
-      private:
-      public:
-    cap_add:
-      - SYS_PTRACE
-    restart: unless-stopped
-    security_opt:
-      - apparmor:unconfined
-    environment:
-      - DOCKER_HOST=dockersocket:2375
-      - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN}
-      - NETDATA_CLAIM_URL=${NETDATA_CLAIM_URL}
-      - NETDATA_CLAIM_ROOMS=${NETDATA_CLAIM_ROOMS}
-
-    volumes:
-      - ./netdataconfig/netdata:/etc/netdata:ro
-      #  - netdataconfig:/etc/netdata
-      - netdatalib:/var/lib/netdata
-      - netdatacache:/var/cache/netdata
-      - /etc/passwd:/host/etc/passwd:ro
-      - /etc/group:/host/etc/group:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /etc/os-release:/host/etc/os-release:ro
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.netdata.rule=Host(`netdata.${TRAEFIK_DOMAIN}`)"
-      - "traefik.http.routers.netdata.entrypoints=https"
-      # Ao executar o container pela primeira vez, pode não conectar o cloud, devido ao https
-      # Habilite entrypoints=http - ao conectar, desabilite novamente...
-      - "traefik.http.routers.netdata.tls=true"
-      - "traefik.http.routers.netdata.tls.certresolver=cloudflare"
-      - "traefik.http.services.netdata.loadbalancer.server.port=19999"
-      - "traefik.http.routers.netdata.middlewares=oauth"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=inverseproxy_shared"
+        - "traefik.constraint-label=inverseproxy_shared"
+        - "traefik.http.routers.traefik.rule=Host(`devstillus.xyz`)"
+        - "traefik.http.services.traefik.loadbalancer.server.port=888" # required by swarm but not used.
+        - "traefik.http.routers.traefik.entrypoints=https"
+        - "traefik.http.routers.traefik.tls.certresolver=cloudflare"
+        - "traefik.http.routers.traefik.tls.domains[0].main=devstillus.xyz"
+        - "traefik.http.routers.traefik.tls.domains[0].sans=*.devstillus.xyz"
+        - "traefik.http.routers.traefik.service=api@internal"
+        - "traefik.http.middlewares.auth.basicauth.usersfile=/etc/certs/usersfile"
+        - "traefik.http.routers.traefik.middlewares=auth,secure@file"
 
   dockersocket:
     image: tecnativa/docker-socket-proxy
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
     privileged: true
     networks:
       private:
@@ -171,7 +56,9 @@ services:
       SERVICES: 1
       SWARM: 1
       TASKS: 1
-    restart: unless-stopped
+
+volumes:
+  acme:
 
 networks:
   shared:
@@ -183,12 +70,3 @@ networks:
     internal: true
     driver_opts:
       encrypted: 1
-
-  public:
-
-volumes:
-  acme:
-  portainer_data:
-  #  netdataconfig:
-  netdatalib:
-  netdatacache:
