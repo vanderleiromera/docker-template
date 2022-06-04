@@ -70,7 +70,6 @@ services:
     environment:
       - DOCKER_HOST=dockersocket:2375
 
-
     command: -H unix:///var/run/docker.sock
     restart: unless-stopped
     security_opt:
@@ -141,8 +140,6 @@ services:
     volumes:
       - ./netdataconfig/netdata:/etc/netdata:ro
       #  - netdataconfig:/etc/netdata
-    volumes:
-      - netdataconfig:/etc/netdata
       - netdatalib:/var/lib/netdata
       - netdatacache:/var/cache/netdata
       - /etc/passwd:/host/etc/passwd:ro
