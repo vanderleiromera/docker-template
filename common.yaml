@@ -44,7 +44,7 @@ services:
     init: true
     environment:
       DBS_TO_INCLUDE: "^prod"
-      DST: "boto3+s3://paranastillus[/dev]"
+      DST: "boto3+s3://paranastillus"
       PGDATABASE: *dbname
       PGUSER: *dbuser
       TZ: "UTC"
