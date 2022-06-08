@@ -47,7 +47,7 @@ services:
       #- "traefik.http.middlewares.auth.basicauth.usersfile=/etc/certs/usersfile"
       #- "traefik.http.middlewares.auth.basicauth.removeheader=true"
       # Ativa a compactação gzip
-      - "traefik.http.middlewares.def-compress.compress=true"
+      #- "traefik.http.middlewares.compress.compress=true"
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/dashboard"
       # TLS origin pull - comentar tls options pra desativar cloudflare ...
       - "traefik.http.routers.proxy.tls.options=default"
@@ -57,7 +57,7 @@ services:
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.service=api@internal"
       # - auth = autenticação usersfile, oauth = autenticação google
-      - "traefik.http.routers.proxy.middlewares=oauth,secure@file,def-compress,strip"
+      - "traefik.http.routers.proxy.middlewares=oauth,secure@file,compress@file,strip"
       - "traefik.http.routers.proxy.tls=true"
       - "providers.file.filename=/etc/traefik/config.yml"
 
