@@ -81,7 +81,7 @@ services:
       # Frontend
       - "traefik.enable=true"
       - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.frontend.rule=Host(`${TRAEFIK_MONITOR}`)"
+      - "traefik.http.routers.frontend.rule=Host(`${TRAEFIK_PORTAINER}`)"
       - "traefik.http.routers.frontend.entrypoints=https"
       - "traefik.http.services.frontend.loadbalancer.server.port=9000"
       - "traefik.http.routers.frontend.service=frontend"
@@ -105,7 +105,7 @@ services:
       SECRET: ${OAUTH_SECRET}
       COOKIE_DOMAIN: ${TRAEFIK_DOMAIN}
       INSECURE_COOKIE: "false"
-      AUTH_HOST: oauth.${TRAEFIK_DOMAIN}
+      AUTH_HOST: ${TRAEFIK_OAUTH}
       WHITELIST: ${OAUTH_EMAIL}
     labels:
       traefik.http.middlewares.oauth.forwardauth.address: http://oauth:4181
@@ -114,14 +114,16 @@ services:
       traefik.http.routers.oauth.middlewares: oauth
       traefik.enable: "true"
       traefik.docker.network: inverseproxy_shared
-      traefik.http.routers.oauth.rule: Host(`oauth.${TRAEFIK_DOMAIN}`)
+      traefik.http.routers.oauth.rule: Host(`${TRAEFIK_OAUTH}`)
       traefik.http.routers.oauth.entrypoints: https
       traefik.http.routers.oauth.tls: "true"
       traefik.http.routers.oauth.tls.certresolver: cloudflare
       traefik.http.services.oauth.loadbalancer.server.port: 4181
 
   netdata:
-    image: netdata/netdata:v1.35.0
+    image: netdata/netdata:v1.35.1
+    pid: host
+    #https://github.com/netdata/netdata/issues/9037
     networks:
       shared:
       private:
@@ -132,14 +134,20 @@ services:
     security_opt:
       - apparmor:unconfined
     environment:
+      # check list first run: -----------------------------------------------------------------------
+      # 1 - get pgid= grep docker /etc/group | cut -d ':' -f 3
+      # 2 - coment #:ro de /etc/netdata - toda estrutura sera criada, pos config #novamente
+      # 3 - insira variaveis de ambiente, start, check log, container up pra ./edit netdata
+      # 4 - use .edit-config para configurações desejadas, ex: health_alarm_notify.conf, não commitado
+      - PGID=${PGID}
       - DOCKER_HOST=dockersocket:2375
       - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN}
       - NETDATA_CLAIM_URL=${NETDATA_CLAIM_URL}
       - NETDATA_CLAIM_ROOMS=${NETDATA_CLAIM_ROOMS}
-
     volumes:
       - ./netdataconfig/netdata:/etc/netdata:ro
       #  - netdataconfig:/etc/netdata
+      #- netdatalogs:/var/log/netdata/error.log
       - netdatalib:/var/lib/netdata
       - netdatacache:/var/cache/netdata
       - /etc/passwd:/host/etc/passwd:ro
@@ -150,7 +158,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.netdata.rule=Host(`netdata.${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.netdata.rule=Host(`${TRAEFIK_NETDATA}`)"
       - "traefik.http.routers.netdata.entrypoints=https"
       # Ao executar o container pela primeira vez, pode não conectar o cloud, devido ao https
       # Habilite entrypoints=http - ao conectar, desabilite novamente...
@@ -191,6 +199,5 @@ volumes:
   acme:
   portainer_data:
   #  netdataconfig:
-  netdataconfig:
   netdatalib:
   netdatacache:
