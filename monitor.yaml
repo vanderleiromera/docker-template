@@ -1,0 +1,115 @@
+# 2 - docker compose -p monitor -f monitor.yaml up -d
+version: "3.9"
+services:
+  grafana:
+    image: grafana/grafana:9.0.0
+    depends_on:
+      - prometheus
+    user: "472"
+    environment:
+      - DOCKER_HOST=dockersocket:2375
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      default:
+      inverseproxy_shared:
+    volumes:
+      - /grafana/var/lib/grafana:/var/lib/grafana
+      - /grafana/var/log/grafana:/var/log/grafana
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=inverseproxy_shared"
+      - "traefik.http.routers.grafana.rule=Host(`${TRAEFIK_GRAFANA}`)"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=cloudflare"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.http.routers.grafana.middlewares=oauth"
+
+  prometheus:
+    image: prom/prometheus:v2.36.1
+    environment:
+      - DOCKER_HOST=dockersocket:2375
+    user: root
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
+    networks:
+      default:
+      inverseproxy_shared:
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=inverseproxy_shared"
+      - "traefik.http.routers.prometheus.rule=Host(`${TRAEFIK_MONITOR}`)"
+      - "traefik.http.routers.prometheus.entrypoints=https"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.tls.certresolver=cloudflare"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - "traefik.http.routers.prometheus.middlewares=oauth"
+
+  alertmanager:
+    image: prom/alertmanager:v0.24.0
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    networks:
+      default:
+      inverseproxy_shared:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=inverseproxy_shared"
+      - "traefik.http.routers.alertmanager.rule=Host(`${TRAEFIK_ALERT}`)"
+      - "traefik.http.routers.alertmanager.entrypoints=https"
+      - "traefik.http.routers.alertmanager.tls=true"
+      - "traefik.http.routers.alertmanager.tls.certresolver=cloudflare"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+      - "traefik.http.routers.alertmanager.middlewares=oauth"
+
+  node-exporter:
+    image: prom/node-exporter:v1.3.1
+    user: root
+    restart: unless-stopped
+    environment:
+      - DOCKER_HOST=dockersocket:2375
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /run/systemd/private:/run/systemd/private:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.systemd"
+      - "--collector.processes"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    expose:
+      - 9100
+    networks:
+      default:
+      inverseproxy_shared:
+
+networks:
+  default:
+    driver_opts:
+      encrypted: 1
+
+  inverseproxy_shared:
+    external: true
+
+volumes:
+  grafana:
+  prometheus_data:

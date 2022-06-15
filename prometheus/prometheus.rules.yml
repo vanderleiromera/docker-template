@@ -1,0 +1,46 @@
+groups:
+  - name: ./rules.conf
+    rules:
+      - alert: NetdataOdoo
+        #  expr: (((time()-timestamp(netdata_cgroup_mem_usage_MiB_average{dimension="ram",chart=~".*"}))>60) or (absent(timestamp(netdata_cgroup_mem_usage_MiB_average{dimension='ram',chart=~'cgroup_doodba14-odoo-1.mem_usage'}))<=0))<=0
+        expr: absent_over_time(netdata_cgroup_mem_usage_MiB_average{chart='cgroup_doodba14-odoo-1.mem_usage'}[5m])
+        for: 1m
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "Odoo ficou off por mais de 01 minutos"
+        labels:
+          severity: critical
+
+      - alert: NetdataOdooBackup
+        #  expr: (((time()-timestamp(netdata_cgroup_mem_usage_MiB_average{dimension="ram",chart=~".*"}))>60) or (absent(timestamp(netdata_cgroup_mem_usage_MiB_average{dimension='ram',chart=~'cgroup_doodba14-odoo-1.mem_usage'}))<=0))<=0
+        expr: absent_over_time(netdata_cgroup_mem_usage_MiB_average{chart='cgroup_doodba14-backup-1.mem_usage'}[30m])
+        for: 10m
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "Backup ficou off por mais de 10 minutos"
+        labels:
+          severity: critical
+
+      - alert: NetdataOdooDb
+        #  expr: (((time()-timestamp(netdata_cgroup_mem_usage_MiB_average{dimension="ram",chart=~".*"}))>60) or (absent(timestamp(netdata_cgroup_mem_usage_MiB_average{dimension='ram',chart=~'cgroup_doodba14-odoo-1.mem_usage'}))<=0))<=0
+        expr: absent_over_time(netdata_cgroup_mem_usage_MiB_average{chart='cgroup_doodba14-db-1.mem_usage'}[1m])
+        for: 1m
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "Postgres Database ficou off por mais de 01 minutos"
+        labels:
+          severity: critical
+
+      - alert: InstanceDown
+        # Condition for alerting
+        expr: up == 0
+        for: 1m
+        # Annotation - additional informational labels to store more information
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description:
+            "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than
+            1 minute."
+        # Labels - additional labels to be attached to the alert
+        labels:
+          severity: critical

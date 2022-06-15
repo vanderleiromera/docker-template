@@ -1,8 +1,9 @@
+# 1 - # docker compose -p inverseproxy -f inverseproxy.yaml up -d
 version: "3.9"
 
 services:
   proxy:
-    image: traefik:v2.7
+    image: traefik:v2.7.1
     networks:
       shared:
       private:
@@ -123,6 +124,7 @@ services:
   netdata:
     image: netdata/netdata:v1.35.1
     pid: host
+    privileged: true
     #https://github.com/netdata/netdata/issues/9037
     networks:
       shared:
@@ -196,7 +198,6 @@ networks:
   public:
 
 volumes:
-  acme:
   portainer_data:
   #  netdataconfig:
   netdatalib:
