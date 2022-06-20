@@ -29,7 +29,7 @@ services:
       - "traefik.http.routers.grafana.middlewares=oauth"
 
   prometheus:
-    image: prom/prometheus:v2.36.1
+    image: prom/prometheus:v2.36.2
     environment:
       - DOCKER_HOST=dockersocket:2375
     user: root
@@ -60,6 +60,8 @@ services:
   alertmanager:
     image: prom/alertmanager:v0.24.0
     restart: unless-stopped
+    environment:
+      - DOCKER_HOST=dockersocket:2375
     volumes:
       - ./alertmanager/:/etc/alertmanager/
     command:
