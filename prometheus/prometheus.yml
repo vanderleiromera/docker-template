@@ -33,6 +33,13 @@ scrape_configs:
     static_configs:
       - targets: ["monitor-node-exporter-1:9100"]
 
+    # Cadvisor
+  #  - job_name: 'cadvisor'
+  #    static_configs:
+  #    - targets: ["monitor-cadvisor-1:8080"]
+  #      labels:
+  #        alias: 'cadvisor'
+
   #################################################################################################
 
   - job_name: "netdata-scrape"
