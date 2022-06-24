@@ -2,7 +2,7 @@
 version: "3.9"
 services:
   grafana:
-    image: grafana/grafana:9.0.0
+    image: grafana/grafana:9.0.1
     depends_on:
       - prometheus
     user: "472"
@@ -80,60 +80,61 @@ services:
       - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
       - "traefik.http.routers.alertmanager.middlewares=oauth"
 
-  #  cadvisor:
-  #    image: gcr.io/cadvisor/cadvisor:v0.44.0
-  #    restart: unless-stopped
-  #    security_opt:
-  #      - no-new-privileges:true
-  #    environment:
-  #      - DOCKER_HOST=dockersocket:2375
-  #    volumes:
-  #      - /:/rootfs:ro
-  #      - /var/run:/var/run:ro
-  #      - /sys:/sys:ro
-  #      - /var/lib/docker/:/var/lib/docker:ro
-  #      - /dev/disk:/dev/disk/:ro
-  #      - /sys/fs/cgroup:/cgroup:ro
-  #    networks:
-  #      default:
-  #      inverseproxy_shared:
-  #    command:
-  #      - '--housekeeping_interval=30s'
-  #      - '--docker_only=true'
-  #      - '--disable_metrics=accelerator,cpu_topology,disk,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa'
-  #    labels:
-  #      - "traefik.enable=true"
-  #      - "traefik.docker.network=inverseproxy_shared"
-  #      - "traefik.http.routers.cadvisor.rule=Host(`${TRAEFIK_CAD}`)"
-  #      - "traefik.http.routers.cadvisor.entrypoints=https"
-  #      - "traefik.http.routers.cadvisor.tls=true"
-  #      - "traefik.http.routers.cadvisor.tls.certresolver=cloudflare"
-  #      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
-  #      - "traefik.http.routers.cadvisor.middlewares=oauth"
-
-  node-exporter:
-    image: prom/node-exporter:v1.3.1
-    user: root
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.44.0
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     environment:
       - DOCKER_HOST=dockersocket:2375
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
       - /:/rootfs:ro
-      - /run/systemd/private:/run/systemd/private:ro
-    command:
-      - "--path.procfs=/host/proc"
-      - "--path.rootfs=/rootfs"
-      - "--path.sysfs=/host/sys"
-      - "--collector.systemd"
-      - "--collector.processes"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
-    expose:
-      - 9100
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk:/dev/disk/:ro
+      - /sys/fs/cgroup:/cgroup:ro
     networks:
       default:
       inverseproxy_shared:
+    command:
+      - "--housekeeping_interval=35s"
+      - "--docker_only=true"
+      - "--disable_metrics=accelerator,cpu_topology,disk,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=inverseproxy_shared"
+      - "traefik.http.routers.cadvisor.rule=Host(`${TRAEFIK_CAD}`)"
+      - "traefik.http.routers.cadvisor.entrypoints=https"
+      - "traefik.http.routers.cadvisor.tls=true"
+      - "traefik.http.routers.cadvisor.tls.certresolver=cloudflare"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+      - "traefik.http.routers.cadvisor.middlewares=oauth"
+
+#  node-exporter:
+#    image: prom/node-exporter:v1.3.1
+#    user: root
+#    restart: unless-stopped
+#    environment:
+#      - DOCKER_HOST=dockersocket:2375
+#    volumes:
+#      - /proc:/host/proc:ro
+#      - /sys:/host/sys:ro
+#      - /:/rootfs:ro
+#      - /run/systemd/private:/run/systemd/private:ro
+#    command:
+#      - "--path.procfs=/host/proc"
+#      - "--path.rootfs=/rootfs"
+#      - "--path.sysfs=/host/sys"
+#      - "--collector.systemd"
+#      - "--collector.processes"
+#      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+#    expose:
+#      - 9100
+#    networks:
+#      default:
+#      inverseproxy_shared:
 
 networks:
   default:
