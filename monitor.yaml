@@ -2,7 +2,7 @@
 version: "3.9"
 services:
   grafana:
-    image: grafana/grafana:9.0.1
+    image: grafana/grafana:9.0.2
     depends_on:
       - prometheus
     user: "472"
@@ -60,6 +60,8 @@ services:
   alertmanager:
     image: prom/alertmanager:v0.24.0
     restart: unless-stopped
+    depends_on:
+      - prometheus
     environment:
       - DOCKER_HOST=dockersocket:2375
     volumes:

@@ -33,6 +33,11 @@ scrape_configs:
   #  static_configs:
   #    - targets: ["monitor-node-exporter-1:9100"]
 
+  # Traefik
+  - job_name: "traefik"
+    static_configs:
+      - targets: ["inverseproxy-proxy-1:8082"]
+
   # Cadvisor
   - job_name: "cadvisor"
     static_configs:

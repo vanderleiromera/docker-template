@@ -24,6 +24,9 @@ entryPoints:
         entryPoint:
           to: https
           scheme: https
+  metrics:
+    address: ":8082"
+
   https:
     http:
       tls: #"true"
@@ -54,6 +57,9 @@ entryPoints:
         - "2405:8100::/32"
         - "2a06:98c0::/29"
         - "2c0f:f248::/32"
+metrics:
+  prometheus:
+    entryPoint: metrics
 
 api:
   dashboard: true

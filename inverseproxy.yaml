@@ -3,7 +3,7 @@ version: "3.9"
 
 services:
   proxy:
-    image: traefik:v2.7.1
+    image: traefik:v2.8
     networks:
       shared:
       private:
