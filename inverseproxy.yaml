@@ -63,7 +63,7 @@ services:
       - "providers.file.filename=/etc/traefik/config.yml"
 
   portainer:
-    image: portainer/portainer-ce:2.13.1
+    image: portainer/portainer-ce:2.14.0
     networks:
       shared:
       private:
@@ -82,12 +82,12 @@ services:
       # Frontend
       - "traefik.enable=true"
       - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.frontend.rule=Host(`${TRAEFIK_PORTAINER}`)"
-      - "traefik.http.routers.frontend.entrypoints=https"
-      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
-      - "traefik.http.routers.frontend.service=frontend"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
+      - "traefik.http.routers.portainer.rule=Host(`${TRAEFIK_PORTAINER}`)"
+      - "traefik.http.routers.portainer.entrypoints=https"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=cloudflare"
 
   oauth:
     image: thomseddon/traefik-forward-auth:2
