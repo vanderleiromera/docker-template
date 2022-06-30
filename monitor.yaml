@@ -100,19 +100,21 @@ services:
     networks:
       default:
       inverseproxy_shared:
+    expose:
+      - 8080
     command:
       - "--housekeeping_interval=35s"
       - "--docker_only=true"
       - "--disable_metrics=accelerator,cpu_topology,disk,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=inverseproxy_shared"
-      - "traefik.http.routers.cadvisor.rule=Host(`${TRAEFIK_CAD}`)"
-      - "traefik.http.routers.cadvisor.entrypoints=https"
-      - "traefik.http.routers.cadvisor.tls=true"
-      - "traefik.http.routers.cadvisor.tls.certresolver=cloudflare"
-      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
-      - "traefik.http.routers.cadvisor.middlewares=oauth"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.docker.network=inverseproxy_shared"
+#      - "traefik.http.routers.cadvisor.rule=Host(`${TRAEFIK_CAD}`)"
+#      - "traefik.http.routers.cadvisor.entrypoints=https"
+#      - "traefik.http.routers.cadvisor.tls=true"
+#      - "traefik.http.routers.cadvisor.tls.certresolver=cloudflare"
+#      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+#      - "traefik.http.routers.cadvisor.middlewares=oauth"
 
 #  node-exporter:
 #    image: prom/node-exporter:v1.3.1
