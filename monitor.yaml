@@ -106,39 +106,39 @@ services:
       - "--housekeeping_interval=35s"
       - "--docker_only=true"
       - "--disable_metrics=accelerator,cpu_topology,disk,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa"
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.docker.network=inverseproxy_shared"
-#      - "traefik.http.routers.cadvisor.rule=Host(`${TRAEFIK_CAD}`)"
-#      - "traefik.http.routers.cadvisor.entrypoints=https"
-#      - "traefik.http.routers.cadvisor.tls=true"
-#      - "traefik.http.routers.cadvisor.tls.certresolver=cloudflare"
-#      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
-#      - "traefik.http.routers.cadvisor.middlewares=oauth"
+  #    labels:
+  #      - "traefik.enable=true"
+  #      - "traefik.docker.network=inverseproxy_shared"
+  #      - "traefik.http.routers.cadvisor.rule=Host(`${TRAEFIK_CAD}`)"
+  #      - "traefik.http.routers.cadvisor.entrypoints=https"
+  #      - "traefik.http.routers.cadvisor.tls=true"
+  #      - "traefik.http.routers.cadvisor.tls.certresolver=cloudflare"
+  #      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+  #      - "traefik.http.routers.cadvisor.middlewares=oauth"
 
-#  node-exporter:
-#    image: prom/node-exporter:v1.3.1
-#    user: root
-#    restart: unless-stopped
-#    environment:
-#      - DOCKER_HOST=dockersocket:2375
-#    volumes:
-#      - /proc:/host/proc:ro
-#      - /sys:/host/sys:ro
-#      - /:/rootfs:ro
-#      - /run/systemd/private:/run/systemd/private:ro
-#    command:
-#      - "--path.procfs=/host/proc"
-#      - "--path.rootfs=/rootfs"
-#      - "--path.sysfs=/host/sys"
-#      - "--collector.systemd"
-#      - "--collector.processes"
-#      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
-#    expose:
-#      - 9100
-#    networks:
-#      default:
-#      inverseproxy_shared:
+  node-exporter:
+    image: prom/node-exporter:v1.3.1
+    user: root
+    restart: unless-stopped
+    environment:
+      - DOCKER_HOST=dockersocket:2375
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /run/systemd/private:/run/systemd/private:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.systemd"
+      - "--collector.processes"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    expose:
+      - 9100
+    networks:
+      default:
+      inverseproxy_shared:
 
 networks:
   default:

@@ -29,9 +29,9 @@ scrape_configs:
       - targets: ["localhost:9090"]
 
     # The job is node-exporter
-  #- job_name: node
-  #  static_configs:
-  #    - targets: ["monitor-node-exporter-1:9100"]
+  - job_name: node
+    static_configs:
+      - targets: ["monitor-node-exporter-1:9100"]
 
   # Traefik
   - job_name: "traefik"
