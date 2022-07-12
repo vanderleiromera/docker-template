@@ -56,17 +56,22 @@ http:
         frameDeny: true
         #sslRedirect: true
         #HSTS Configuration
+        sslproxyheaders:
+          X-Forwarded-Proto: "https"
         stsIncludeSubdomains: true
         stsPreload: true
         stsSeconds: 31536000
         forceSTSHeader: true
         referrerPolicy: "same-origin"
         customFrameOptionsValue: "SAMEORIGIN"
-        #  contentSecurityPolicy: script-src 'self'
+        customresponseheaders:
+          X-Robots-Tag: "none, noarchive, nosnippet, notranslate, noimageindex"
         permissionsPolicy: geolocation=(), microphone=()
+
     buffering:
       buffering:
         retryExpression: IsNetworkError() && Attempts() < 5
+
     compress:
       compress: "true"
 
@@ -74,23 +79,29 @@ http:
       headers:
         customResponseHeaders:
           X-Robots-Tag: "noindex, nofollow"
+
     doodba:
       chain:
         middlewares:
           - buffering
           - compress
           - secure
+
     localhost-only:
       ipWhitelist:
         sourceRange:
           - "127.0.0.1/32"
           - "172.16.0.0/12" # change to your docker subnet
+
     prod-headers:
       headers:
         customresponseHeaders:
           # In environment with versioned static files, switch commented
-          # Cache-Control: "private,max-age=31536000"
-          Cache-Control: "private,no-cache"
+          #Cache-Control: "private,max-age=31536000"
+          #Cache-Control: "private,no-cache"
+          #https://developers.cloudflare.com/cache/about/cache-control/
+          Cache-Control: "public,max-age=864000"
+
     test-headers:
       headers:
         customresponseHeaders:
