@@ -2,7 +2,7 @@
 version: "3.9"
 services:
   grafana:
-    image: grafana/grafana:9.0.2
+    image: grafana/grafana:9.0.4
     depends_on:
       - prometheus
     user: "472"
@@ -29,7 +29,7 @@ services:
       - "traefik.http.routers.grafana.middlewares=oauth"
 
   prometheus:
-    image: prom/prometheus:v2.36.2
+    image: prom/prometheus:v2.37.0
     environment:
       - DOCKER_HOST=dockersocket:2375
     user: root
