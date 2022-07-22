@@ -200,5 +200,6 @@ networks:
 volumes:
   portainer_data:
   #  netdataconfig:
+  netdataconfig:
   netdatalib:
   netdatacache:
