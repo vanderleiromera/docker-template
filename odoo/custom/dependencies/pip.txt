@@ -14,12 +14,9 @@ num2words
 odoo_test_helper
 pycep_correios
 workalendar
-
-xmldiff==2.4
-lxml==4.6.5
+xmldiff
 -e git+https://github.com/OCA/openupgradelib.git@master#egg=openupgradelib
 vcrpy
-odoo-test-helper
 
 # OCA Modules
 pysftp
