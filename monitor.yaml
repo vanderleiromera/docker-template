@@ -2,10 +2,10 @@
 version: "3.9"
 services:
   grafana:
-    image: grafana/grafana:9.0.4
+    image: grafana/grafana:9.0.6
     depends_on:
       - prometheus
-    user: "472"
+    user: "$UID:$GID"
     environment:
       - DOCKER_HOST=dockersocket:2375
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
@@ -83,7 +83,7 @@ services:
       - "traefik.http.routers.alertmanager.middlewares=oauth"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.44.0
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
