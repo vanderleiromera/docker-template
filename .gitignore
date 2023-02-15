@@ -28,8 +28,3 @@
 
 # Project-specific docker configurations
 /.docker/
-.env
-certs/
-acme/
-netdataconfig/netdata/health_alarm_notify.conf
-#alertmanager/alertmanager.yml
