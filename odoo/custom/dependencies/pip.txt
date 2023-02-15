@@ -15,10 +15,11 @@ num2words
 odoo_test_helper
 phonenumbers
 pycep_correios
+pyyaml
 workalendar
 xmldiff
 vcrpy
 
 # OCA Modules
 pysftp
-python-barcode == 0.12.0
+python-barcode

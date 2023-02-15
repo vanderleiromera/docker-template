@@ -20,14 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4.3.0
+      - uses: actions/setup-python@v4.5.0
         with:
           # The pylint-odoo version we use here does not support python 3.10
           # https://github.com/OCA/oca-addons-repo-template/issues/80
           # We also need to pin to an older version of python for older odoo versions
           # where we are not using black > 21. Older black versions won't work with
           # Python 3.9.8+, and we can't bump black without reformatting.
-          python-version: "3.9.7"
+          python-version: "3.9.16"
       - uses: pre-commit/action@v3.0.0
 
   test-image:
@@ -66,12 +66,12 @@ jobs:
 
       - name: Bump version and push tag
         id: tagging
-        uses: mathieudutour/github-tag-action@v6.0
+        uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.DOO_GITHUB_TOKEN }}
 
       - name: Build and export to Docker
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./odoo
           load: true
@@ -84,7 +84,7 @@ jobs:
 
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./odoo
           file: ./odoo/Dockerfile
