@@ -5,6 +5,7 @@ services:
     build:
       context: ./odoo
       args:
+        DB_VERSION: "13"
         ODOO_VERSION: "14.0"
         UID: "${UID:-1000}"
         GID: "${GID:-1000}"
@@ -39,10 +40,10 @@ services:
 
   backup:
     image: ghcr.io/tecnativa/docker-duplicity-postgres-s3:latest
-    hostname: backup
-    domainname: devstillus.xyz
+    hostname: backup.devstillus.xyz
     init: true
     environment:
+      DB_VERSION: "13"
       DBS_TO_INCLUDE: "^prod"
       DST: "boto3+s3://paranastillus"
       PGDATABASE: *dbname
