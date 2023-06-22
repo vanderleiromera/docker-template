@@ -15,7 +15,7 @@ nfselib.paulistana
 num2words
 odoo_test_helper
 phonenumbers
-pycep_correios
+pycep-correios
 pyyaml
 satcomum
 workalendar
